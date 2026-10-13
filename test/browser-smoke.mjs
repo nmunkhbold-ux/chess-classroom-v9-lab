@@ -23,6 +23,18 @@ try {
   await page.waitForSelector('.cm-chessboard .square[data-square="e2"]');
   assert.equal(await page.$eval('.cm-chessboard .pieces g[data-square="e2"]',e=>e.getAttribute('data-piece')),'wp');
   console.log('PASS board and SVG pieces');
+  const branding=await page.evaluate(()=>{
+    const header=[...document.querySelectorAll('.masthead .brand-logo-card img')];
+    const presentation=[...document.querySelectorAll('.focus-brands img')];
+    return {header:header.map(i=>({alt:i.alt,loaded:i.complete&&i.naturalWidth>0,src:i.currentSrc})),
+      presentation:presentation.map(i=>({alt:i.alt,loaded:i.complete&&i.naturalWidth>0,src:i.currentSrc}))};
+  });
+  assert.deepEqual(branding.header.map(x=>x.alt),['Chess club logo','AUM logo']);
+  assert.deepEqual(branding.presentation.map(x=>x.alt),['Chess club logo','AUM logo']);
+  assert.ok([...branding.header,...branding.presentation].every(x=>x.loaded),'all branded assets must load');
+  assert.equal(branding.header[0].src,branding.presentation[0].src);
+  assert.equal(branding.header[1].src,branding.presentation[1].src);
+  console.log('PASS V8-style paired logos and fullscreen branding');
   // Clean Classroom is intentionally board-first and hides rarely used controls.
   assert.ok(await page.$eval('#advanced-tools',e=>!e.open));
   assert.ok(await page.$eval('#teaching-panel',e=>e.getBoundingClientRect().width < 355));
