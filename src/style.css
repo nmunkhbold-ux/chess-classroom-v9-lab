@@ -47,3 +47,74 @@ html:fullscreen .focus-brands{display:flex;position:fixed;right:20px;bottom:17px
 .focus-brands .focus-club-name{display:block;max-width:135px;font-size:10px;line-height:1.4;font-weight:800;letter-spacing:.04em;color:#f0e6d5;text-align:left}
 @media(max-width:660px){.brand .club-name{font-size:10px;letter-spacing:.035em;max-width:230px}.brand .brand-copy h1{font-size:19px}}
 @media(max-width:430px){.brand .club-name{font-size:9px;max-width:160px}.brand .brand-copy h1{font-size:17px}.brand-logo-card.club img{width:48px}.brand-logo-card.aum img{width:30px}.focus-brands .focus-club-name{font-size:8px;max-width:104px}}
+
+/* V8 screenshot-accurate masthead: club identity left, AUM shield right. */
+.masthead{
+  width:100%;max-width:none;min-height:105px;padding:20px clamp(20px,2.85vw,58px);
+  background:linear-gradient(100deg,#14212c,#0c141e);
+  border-bottom:1px solid #263442;
+  justify-content:space-between;gap:24px;
+}
+.masthead .brand{display:flex;align-items:center;gap:20px;flex:none}
+.masthead .brand-logo-card.club{padding:0;background:#fff1d4;border:1px solid #bbaa8d;border-radius:12px;overflow:hidden;box-shadow:0 3px 14px #0002}
+.masthead .brand-logo-card.club img{width:72px;height:72px;object-fit:contain}
+.masthead .brand-copy{min-width:0}
+.masthead .club-name{font-size:11px;line-height:1.1;font-weight:800;letter-spacing:2.25px;color:#acb7c2;margin:0 0 5px;white-space:nowrap;max-width:none}
+.masthead .brand-copy h1{font-size:clamp(23px,1.55vw,30px);letter-spacing:-1px;line-height:1.05;font-weight:900;color:#f7f6f2}
+.masthead .brand-copy h1 em{font-weight:580;color:#edbd6e}
+.save-indicator{display:flex;align-items:center;gap:8px;color:#c2cdc9;font-size:12px;font-weight:500;margin-top:11px;line-height:1}
+.save-indicator .save-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#72cda6;box-shadow:0 0 0 4px #72cda621;flex:none}
+.save-indicator[data-state="error"]{color:#f0a7a0}
+.save-indicator[data-state="error"] .save-dot{background:#e98d84;box-shadow:0 0 0 4px #e98d8421}
+.masthead .header-actions{display:flex;align-items:center;gap:20px;flex:none}
+.language-switch{display:flex;align-items:center;gap:3px;padding:4px;border:1px solid #415667;background:#111e29;border-radius:12px}
+.language-switch button{min-width:41px;min-height:38px;border:0;border-radius:8px;padding:8px 11px;background:transparent;color:#bec8d1;font-size:13px;font-weight:800;cursor:pointer}
+.language-switch button:hover{background:#233543}
+.language-switch button.active,.language-switch button[aria-pressed="true"]{background:#ebbd71;color:#15212a;box-shadow:0 2px 6px #0004}
+.language-switch button.active:hover{background:#f2ca87;color:#15212a}
+.help-action{display:flex;align-items:center;justify-content:center;gap:12px;min-height:42px;padding:8px 6px;background:transparent;border:0;color:#c2cbd1;font-size:13px;font-weight:550;white-space:nowrap}
+.help-action:hover{color:#fff}
+.help-action span:first-child{font-size:13px}
+.masthead .accent-button{display:flex;align-items:center;justify-content:center;gap:12px;background:#efc178;border:1px solid #f5d195;color:#15202b;padding:17px 22px;border-radius:9px;font-size:16px;font-weight:850;line-height:1.1;white-space:nowrap;box-shadow:0 5px 18px #0002}
+.masthead .accent-button:hover{background:#ffda97;color:#131d29}
+.masthead .aum-brand-logo{width:52px;height:67px;object-fit:contain;flex:none;display:block}
+.help-dialog{max-width:min(560px,calc(100vw - 30px));width:100%;background:#1c2b36;color:#eef2ed;border:1px solid #526574;border-radius:16px;padding:25px;box-shadow:0 25px 90px #000a}
+.help-dialog::backdrop{background:#08111bc9}
+.help-dialog-heading{display:flex;gap:15px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.help-dialog h2{font-size:20px;letter-spacing:-.5px}
+.help-dialog p{font-size:13px;color:#c4d0d1;line-height:1.65}
+.help-dialog-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:23px}
+.help-dialog-grid strong{display:block;color:#eec484;font-size:13px;margin-bottom:6px}
+.help-close{background:#263c49;border:1px solid #486071;border-radius:9px;padding:8px 11px;color:#e5edef}
+.help-done{margin-top:25px;background:#edbe70;border:1px solid #f1cb89;border-radius:9px;padding:11px 19px;color:#1b2530;font-weight:800}
+@media(max-width:1130px){
+  .masthead{gap:12px;padding:15px 20px}
+  .masthead .brand{gap:12px}
+  .masthead .header-actions{gap:11px}
+  .masthead .brand-logo-card.club img{width:61px;height:61px}
+  .masthead .club-name{font-size:10px;letter-spacing:1.3px}
+  .masthead .brand-copy h1{font-size:23px}
+  .masthead .accent-button{padding:13px 14px;font-size:13px;gap:8px}
+  .masthead .aum-brand-logo{width:43px;height:57px}
+}
+@media(max-width:760px){
+  .masthead{flex-wrap:wrap;row-gap:13px}
+  .masthead .brand{min-width:0;flex:1}
+  .masthead .header-actions{width:100%;justify-content:flex-end;gap:12px}
+  .masthead .brand-logo-card.club img{width:57px;height:57px}
+  .masthead .club-name{font-size:10px;letter-spacing:1px;white-space:normal}
+  .save-indicator{margin-top:8px}
+  .masthead .accent-button{font-size:12px}
+}
+@media(max-width:420px){
+  .masthead{padding:12px 13px}
+  .masthead .brand-logo-card.club img{width:53px;height:53px}
+  .masthead .brand-copy h1{font-size:20px}
+  .masthead .club-name{font-size:9px;letter-spacing:.8px}
+  .masthead .header-actions{gap:9px;justify-content:space-between}
+  .language-switch button{min-width:32px;min-height:33px;padding:7px 5px}
+  .masthead .accent-button{padding:10px;font-size:11px}
+  .masthead .aum-brand-logo{width:34px;height:47px}
+  .help-action{gap:4px}
+  .help-dialog-grid{grid-template-columns:1fr;gap:12px}
+}
