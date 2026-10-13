@@ -21,6 +21,16 @@
         <div class="board-top"><span class="overline" data-i18n="interactiveBoard">INTERACTIVE CHESSBOARD</span><span id="turn-label">White to move</span></div>
         <div class="board-frame"><div id="chessboard" role="region" aria-label="Interactive chessboard"></div></div>
         <div class="board-footer"><span id="status" aria-live="polite">Ready</span><span data-i18n="annotateHelp">Right-click to circle · Right-drag to draw arrows</span></div>
+        <div class="teaching-toolbar" role="group" aria-label="Board tools">
+          <span class="tool-label" data-i18n="boardTools">BOARD TOOLS</span>
+          <button data-annotation-tool="move" class="selected" data-i18n="moveTool" title="Click or drag to move pieces">♙ Move</button>
+          <button data-annotation-tool="arrow" data-i18n="arrowTool" title="Click a starting square and then an end square">➤ Arrow</button>
+          <button data-annotation-tool="circle" data-i18n="circleTool" title="Click any square to circle it">◯ Circle</button>
+          <button data-annotation-tool="erase" data-i18n="eraseTool" title="Click a square to erase annotations">⌫ Erase</button>
+          <select id="annotation-color" aria-label="Annotation color" title="Arrow or circle color"><option value="success">Green</option><option value="info">Blue</option><option value="danger">Red</option><option value="warning">Orange</option></select>
+          <label class="hint-toggle"><input type="checkbox" id="show-moves" checked /><span data-i18n="showMoves">Show moves</span></label>
+        </div>
+        <div class="hint-message" id="hint-info" aria-live="polite"></div>
         <div class="controls-row"><button id="undo" class="outline" data-i18n="undo">← Undo</button><button id="redo" class="outline" data-i18n="redo">Redo →</button><button id="flip" class="outline" data-i18n="flip">Flip board</button><button id="clear-arrows" class="outline" data-i18n="clearMarks">Clear marks</button></div>
       </section>
 
@@ -33,6 +43,7 @@
         <section id="game-tools" class="panel-section">
           <span class="eyebrow" data-i18n="gameTools">GAME CONTROLS</span>
           <div class="tools-line"><button id="new-game" data-i18n="newGame">New game</button><button id="import-pgn" data-i18n="importPgn">Open PGN</button><input hidden type="file" id="pgn-file" accept=".pgn,.txt" /></div>
+          <div class="history-navigation"><button id="game-start" data-i18n="firstMove" title="First move">|◀</button><button id="game-prev" data-i18n="previousMove">◀</button><button id="game-next" data-i18n="nextMove">▶</button><button id="game-end" data-i18n="lastMove" title="Last move">▶|</button></div>
           <div class="tools-line"><button id="export-pgn" data-i18n="savePgn">Save PGN</button><button id="load-fen" data-i18n="loadFen">Load FEN</button></div>
           <label class="input-label" for="fen-input">FEN</label><input id="fen-input" spellcheck="false" placeholder="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" />
           <div id="game-history" class="history"></div>
@@ -41,6 +52,14 @@
           <span class="eyebrow" data-i18n="lessonSetup">PIECE DEMONSTRATION</span>
           <div class="form-grid"><label><span data-i18n="piece">Piece</span><select id="lesson-piece"><option value="n">Knight</option><option value="p">Pawn</option><option value="b">Bishop</option><option value="r">Rook</option><option value="q">Queen</option><option value="k">King</option></select></label><label><span data-i18n="color">Color</span><select id="lesson-color"><option value="w">White</option><option value="b">Black</option></select></label></div>
           <div class="tools-line"><button id="start-lesson" data-i18n="startLesson">Start example</button><button id="empty-lesson" data-i18n="emptyBoard">Empty board</button></div>
+          <span class="input-label" data-i18n="examplePositions">EXAMPLE POSITIONS</span>
+          <div class="tools-line"><button id="example-open" data-i18n="openExample">Open</button><button id="example-blockers" data-i18n="blockersExample">Blockers</button><button id="example-captures" data-i18n="capturesExample">Captures</button></div>
+          <span class="input-label" data-i18n="lessonPlacement">ADD PIECES TO THE LESSON</span>
+          <label class="input-label" for="lesson-tool" data-i18n="lessonAction">Lesson action</label>
+          <select id="lesson-tool"><option value="move">Move pieces</option><option value="own">Add friendly piece</option><option value="opponent">Add opposing piece</option><option value="erase">Remove a piece</option></select>
+          <label class="input-label" for="lesson-blocker-piece" data-i18n="blockerPiece">Piece to add</label>
+          <select id="lesson-blocker-piece"><option value="p">Pawn</option><option value="n">Knight</option><option value="b">Bishop</option><option value="r">Rook</option><option value="q">Queen</option></select>
+          <p class="helper" data-i18n="lessonMovesHelp">Select a piece to see legal movement geometry. Add friendly blockers or opposing targets by clicking squares.</p>
         </section>
         <section id="editor-tools" class="panel-section hidden">
           <span class="eyebrow" data-i18n="editorSetup">BOARD SETUP</span>
@@ -48,6 +67,13 @@
           <div class="form-grid"><label><span data-i18n="piece">Piece</span><select id="setup-piece"><option value="p">Pawn</option><option value="n">Knight</option><option value="b">Bishop</option><option value="r">Rook</option><option value="q">Queen</option><option value="k">King</option></select></label><label><span data-i18n="color">Color</span><select id="setup-color"><option value="w">White</option><option value="b">Black</option></select></label></div>
           <div class="tools-line"><button id="empty-editor" data-i18n="clearBoard">Clear board</button><button id="copy-to-lesson" data-i18n="copyToLesson">Use in lesson</button></div>
           <p class="helper" data-i18n="editorHint">Place or erase a piece by clicking a square. Choose Move pieces to drag freely.</p>
+        </section>
+        <section class="panel-section">
+          <span class="eyebrow" data-i18n="lessonChapters">LESSON SLIDES</span>
+          <p class="helper" data-i18n="chapterInfo">Save a board position with its notes, then jump between slides during teaching.</p>
+          <div class="tools-line"><button id="add-slide" data-i18n="addSlide">+ Save current slide</button><button id="delete-slide" data-i18n="deleteSlide">Delete selected</button></div>
+          <div class="history-navigation"><button id="slide-prev" data-i18n="previousSlide">◀ Previous</button><button id="slide-next" data-i18n="nextSlide">Next ▶</button></div>
+          <div id="lesson-slides" class="slide-list" aria-label="Saved lesson slides"></div>
         </section>
         <section class="panel-section">
           <span class="eyebrow" data-i18n="lessonNotes">LESSON NOTES</span>

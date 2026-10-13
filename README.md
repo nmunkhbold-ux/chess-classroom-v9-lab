@@ -59,3 +59,14 @@ Nothing here changes the live V8 repo. Merge changes from V9 to V8 only after ex
 This is **development preview only**. V8's complete chapter/variation tree, all teaching presets, advanced clocks, puzzle grading, custom annotations linked to tree nodes, and full old-format JSON import are **not yet ported**. A migration adapter and browser regression suite are required before any production switch.
 
 CI build and browser interaction behavior must also be validated after installing the npm dependencies; unit tests alone do not prove the whole interface works.
+
+## V8 teaching tools ported into V9 Lab (October 2026)
+
+- **Show moves**: click a piece to highlight destinations (dots) and captures (red markers). In Full Game the moves come from `chess.js`; in Piece Lesson and Board Editor, they come from teaching geometry that works without kings and respects blockers.
+- **Drawing tools**: Move / Arrow / Circle / Erase; choose green, blue, red or orange. Click two squares for an arrow, one for a circle; click the same annotation to remove it. Right-click / right-drag annotations also remain available through cm-chessboard.
+- **Piece Lesson examples**: Open, Blockers and Captures for the selected piece and side. Place/remove friendly or opposing pieces directly in Piece Lesson without switching to Board Editor.
+- **Move history navigation**: clickable moves and first / previous / next / last buttons. Back and forward move history is kept until a new chess move is made.
+- **Lesson slides**: Save the current board, notes, title and arrows/circles as a slide. Click slides or use Previous / Next; delete saved slides. Slides are stored in browser autosave and included in downloaded lesson JSON.
+- **Keyboard**: F for fullscreen, M for the teaching panel in fullscreen, Left/Right for undo/redo.
+
+**Current limitations:** Piece Lesson geometric hints intentionally omit chess check/pins; the regular Full Game uses `chess.js` and obeys normal rules. Board Editor deliberately allows any placement. Game slides store a FEN position (not complete previous PGN history). The optional lesson examples are teaching illustrations, not real-game puzzles. This remains the separate V9 Lab, not the live V8 app.

@@ -3,9 +3,11 @@ import 'cm-chessboard/assets/chessboard.css';
 import 'cm-chessboard/assets/extensions/markers/markers.css';
 import 'cm-chessboard/assets/extensions/arrows/arrows.css';
 import { Chessboard, INPUT_EVENT_TYPE, COLOR, POINTER_EVENTS } from 'cm-chessboard/src/Chessboard.js';
-import { RightClickAnnotator } from 'cm-chessboard/src/extensions/right-click-annotator/RightClickAnnotator.js';
+import { RightClickAnnotator, ARROW_TYPE as DRAW_ARROW, MARKER_TYPE as DRAW_MARKER } from 'cm-chessboard/src/extensions/right-click-annotator/RightClickAnnotator.js';
+import { Markers, MARKER_TYPE } from 'cm-chessboard/src/extensions/markers/Markers.js';
 import { Chess } from 'chess.js';
 import { fenToMap, mapToFen, putPiece, freeMove, demoPosition, validateLesson } from './core/position.js';
+import { demonstrationMoves, lessonExample } from './core/teaching.js';
 
 const $ = (id) => document.getElementById(id);
 const base = import.meta.env.BASE_URL;
@@ -25,6 +27,13 @@ const translations = {
   lessonNotes:'ХИЧЭЭЛИЙН ТАЙЛБАР',titlePlaceholder:'Хичээлийн гарчиг',notesPlaceholder:'Багшийн тэмдэглэл, ярих зүйл',
   saveLesson:'Хичээл хадгалах',openLesson:'Хичээл нээх',autosave:'Энэ хөтөч дээр өөрчлөлт хадгалагдана. Хичээлийн өмнө JSON нөөц файл татна уу.',
   recording:'БИЧЛЭГ',webcamLeft:'Камер зүүн',webcamRight:'Камер баруун',boardOnly:'Зөвхөн самбар',
+  boardTools:'САМБАРЫН ХЭРЭГСЛҮҮД', moveTool:'♙ Нүүх',arrowTool:'➤ Сум',circleTool:'◯ Дугуй',eraseTool:'⌫ Арилгах',showMoves:'Нүүдэл харуулах',
+  firstMove:'|◀ Эхэнд',previousMove:'◀ Өмнөх',nextMove:'Дараах ▶',lastMove:'Сүүлд ▶|',
+  examplePositions:'ЖИШЭЭ БАЙРЛАЛУУД',openExample:'Хоосон',blockersExample:'Саад',capturesExample:'Дүрс идэх',
+  lessonPlacement:'ХИЧЭЭЛИЙН САМБАРТ ДҮРС НЭМЭХ',lessonAction:'Үйлдэл',blockerPiece:'Байрлуулах дүрс',
+  lessonMovesHelp:'Дүрсийг сонгоод боломжтой нүүдлийг харна. Самбарт өөрийн болон эсрэг талын дүрс нэмж болно.',
+  lessonChapters:'ХИЧЭЭЛИЙН СЛАЙДУУД',chapterInfo:'Байрлал, тайлбарыг хадгалж, хичээлийн явцад слайд хооронд шилжинэ.',
+  addSlide:'+ Слайд хадгалах',deleteSlide:'Сонгосныг устгах',previousSlide:'◀ Өмнөх слайд',nextSlide:'Дараах слайд ▶',
   footer:'ТУРШИЛТЫН ХУВИЛБАР · ҮНДСЭН САЙТ БИШ'
 };
 const modeDescriptions = {
@@ -50,30 +59,48 @@ let lessonMap = demoPosition();
 let editorMap = fenToMap(game.fen());
 let timeline = [{...lessonMap}], timeIndex = 0;
 let editorTimeline = [{...editorMap}], editorIndex = 0;
+let showMoveHints = true, hintSource = null, annotationTool = 'move', annotationStart = null;
+let chapterSlides = [], selectedSlide = -1;
+const HINT_TYPES=[MARKER_TYPE.framePrimary,MARKER_TYPE.dot,MARKER_TYPE.circleDangerFilled];
+const saveAnnotationType=type=>({class:type.class,...(type.slice?{slice:type.slice}:{}),...(type.position?{position:type.position}:{})});
 const saveKey = 'chess-classroom-v9-lab-01';
 
 const board = new Chessboard($('chessboard'), {
   position: game.fen(),
   assetsUrl: `${base}cm-assets/`,
   style: {cssClass:'default', showCoordinates:true, pieces:{file:'pieces/standard.svg', tileSize:40}, animationDuration:180},
-  extensions: [{class:RightClickAnnotator}]
+  extensions: [{class:Markers,props:{autoMarkers:null}}, {class:RightClickAnnotator}]
 });
 board.enableSquareSelect(POINTER_EVENTS.pointerdown, ({square,event}) => {
-  if (mode !== 'editor' || $('setup-tool').value === 'move' || !square || event?.button === 2) return;
-  const selected = $('setup-tool').value === 'erase' ? null : getPalettePiece();
-  applyFreeChange(putPiece(editorMap, square, selected));
+  if(!square||event?.button!==0)return;
+  if(annotationTool!=='move'){handleAnnotationSquare(square);return;}
+  if(mode==='editor'&&$('setup-tool').value!=='move'){
+    applyFreeChange(putPiece(editorMap,square,$('setup-tool').value==='erase'?null:getPalettePiece()));
+    return;
+  }
+  if(mode==='lesson'&&$('lesson-tool').value!=='move'){
+    const action=$('lesson-tool').value;
+    const color=action==='own' ? $('lesson-color').value : $('lesson-color').value==='w'?'b':'w';
+    const kind=$('lesson-blocker-piece').value;
+    applyFreeChange(putPiece(lessonMap,square,action==='erase'?null:color==='w'?kind.toUpperCase():kind));
+    return;
+  }
+  selectHintSource(square);
 });
 board.enableMoveInput((event) => {
   if (event.type === INPUT_EVENT_TYPE.moveInputStarted) {
+    if(annotationTool!=='move')return false;
     if (mode === 'game') {
       const p=game.get(event.squareFrom);
       return Boolean(p && p.color === game.turn());
     }
     if (mode === 'editor' && $('setup-tool').value !== 'move') return false;
+    if (mode === 'lesson' && $('lesson-tool').value !== 'move') return false;
     const map=mode === 'editor' ? editorMap : lessonMap;
     return Boolean(map[event.squareFrom]);
   }
   if (event.type === INPUT_EVENT_TYPE.validateMoveInput) {
+    if(annotationTool!=='move')return false;
     const from = event.squareFrom, to = event.squareTo;
     if (mode === 'game') {
       try {
@@ -85,11 +112,96 @@ board.enableMoveInput((event) => {
       } catch { status(language === 'mn' ? 'Боломжгүй нүүдэл' : 'Illegal move'); return false; }
     }
     if (mode === 'editor') applyFreeChange(freeMove(editorMap, from,to));
-    else applyFreeChange(freeMove(lessonMap,from,to));
+    else {
+      const geometry=demonstrationMoves(lessonMap,from);
+      if(![...geometry.moves,...geometry.captures].includes(to)){
+        status(language==='mn'?'Энэ дүрс ингэж нүүхгүй':'This piece cannot move there');
+        return false;
+      }
+      applyFreeChange(freeMove(lessonMap,from,to));
+    }
     return true;
   }
   return undefined;
 });
+
+function forgetHints(){HINT_TYPES.forEach(t=>board.removeMarkers(t));}
+function showHintsForSelection(){
+  forgetHints();
+  if(!showMoveHints||annotationTool!=='move'||!hintSource){$('hint-info').textContent='';return;}
+  let moves=[],captures=[];
+  if(mode==='game'){
+    const p=game.get(hintSource);
+    if(!p||p.color!==game.turn()){hintSource=null;return;}
+    for(const m of game.moves({square:hintSource,verbose:true})){
+      if(m.isCapture?.()||m.isEnPassant?.())captures.push(m.to);
+      else moves.push(m.to);
+    }
+  }else{
+    const m=mode==='editor'?editorMap:lessonMap;
+    if(!m[hintSource]){hintSource=null;return;}
+    ({moves,captures}=demonstrationMoves(m,hintSource));
+  }
+  board.addMarker(MARKER_TYPE.framePrimary,hintSource);
+  for(const to of new Set(moves))board.addMarker(MARKER_TYPE.dot,to);
+  for(const to of new Set(captures))board.addMarker(MARKER_TYPE.circleDangerFilled,to);
+  $('hint-info').textContent=(language==='mn'?`${hintSource}: ${moves.length} нүүдэл, ${captures.length} идэх боломж`: `${hintSource}: ${moves.length} destinations, ${captures.length} captures`);
+}
+function selectHintSource(square){
+  hintSource=square===hintSource?null:square;
+  showHintsForSelection();
+}
+function changeAnnotationTool(tool){
+  annotationTool=['move','arrow','circle','erase'].includes(tool)?tool:'move';
+  annotationStart=null;
+  document.querySelectorAll('[data-annotation-tool]').forEach(b=>b.classList.toggle('selected',b.dataset.annotationTool===annotationTool));
+  showHintsForSelection();
+  $('hint-info').textContent=annotationTool==='arrow'?(language==='mn'?'Сум зурах эхний нүдийг дарна уу':'Click the arrow starting square'):
+    annotationTool==='circle'?(language==='mn'?'Дугуйлах нүдийг дарна уу':'Click a square to circle it'):
+    annotationTool==='erase'?(language==='mn'?'Арилгах нүдийг дарна уу':'Click a square to erase marks'):$('hint-info').textContent;
+}
+function handleAnnotationSquare(square){
+  const kind=$('annotation-color').value;
+  if(annotationTool==='arrow'){
+    if(!annotationStart){annotationStart=square;$('hint-info').textContent=(language==='mn'?'Сумны төгсгөлийг сонгоно уу: ':'Select arrow destination: ')+square;return;}
+    if(square!==annotationStart){
+      const type=DRAW_ARROW[kind];
+      const exists=board.getArrows(type,annotationStart,square).length>0;
+      if(exists)board.removeArrows(type,annotationStart,square);
+      else board.addArrow(type,annotationStart,square);
+    }
+    annotationStart=null;
+    $('hint-info').textContent=language==='mn'?'Дараагийн сумны эхлэлийг сонгоно уу':'Click to start another arrow';
+  }else if(annotationTool==='circle'){
+    const type=DRAW_MARKER[kind];
+    if(board.getMarkers(type,square).length)board.removeMarkers(type,square);
+    else board.addMarker(type,square);
+  }else if(annotationTool==='erase'){
+    // Remove only annotations on or connected to this square, leaving unrelated markings intact.
+    for(const a of board.getArrows())if(a.from===square||a.to===square)board.removeArrows(a.type,a.from,a.to);
+    for(const m of board.getMarkers())if(m.square===square)board.removeMarkers(m.type,square);
+  }
+  saveLocally();
+}
+function changeHintPreference(enabled){showMoveHints=Boolean(enabled);$('show-moves').checked=showMoveHints;showHintsForSelection();saveLocally();}
+function hydrateAnnotations(annotations){
+  // cm-chessboard compares some marker/arrow types by reference identity.
+  // Restore canonical type objects after JSON/localStorage deserialization.
+  const a=annotations||{arrows:[],markers:[]};
+  const arrowTypes=Object.values(DRAW_ARROW);
+  const markerTypes=[...Object.values(DRAW_MARKER),...Object.values(MARKER_TYPE)];
+  return {
+    arrows:(Array.isArray(a.arrows)?a.arrows:[]).filter(x=>x&&/^[a-h][1-8]$/.test(x.from)&&/^[a-h][1-8]$/.test(x.to))
+      .map(x=>({...x,type:arrowTypes.find(t=>t.class===x.type?.class)||DRAW_ARROW.success})),
+    markers:(Array.isArray(a.markers)?a.markers:[]).filter(x=>x&&/^[a-h][1-8]$/.test(x.square))
+      .map(x=>({...x,type:markerTypes.find(t=>t.class===x.type?.class)||DRAW_MARKER.success}))
+  };
+}
+function persistentAnnotations(){
+  const a=board.getAnnotations?.()||{arrows:[],markers:[]};
+  return {arrows:a.arrows.map(x=>({from:x.from,to:x.to,type:saveAnnotationType(x.type)})),
+    markers:a.markers.filter(x=>!HINT_TYPES.some(t=>t.class===x.type?.class)).map(x=>({square:x.square,type:saveAnnotationType(x.type)}))};
+}
 
 function getPalettePiece() {
   const kind = $('setup-piece').value;
@@ -100,9 +212,10 @@ function positionForMode() {
 }
 function refreshBoard(animate=false) {
   // Keep the authoritative state in Chess.js (game) or the teaching map (lesson/editor).
-  requestAnimationFrame(()=>board.setPosition(positionForMode(), animate));
+  requestAnimationFrame(()=>{board.setPosition(positionForMode(), animate);showHintsForSelection();});
 }
 function onPositionChanged() {
+  hintSource=null;
   renderStatus();
   showGameHistory();
   refreshBoard(true);
@@ -137,19 +250,37 @@ function renderStatus() {
 function status(msg){$('status').textContent=msg;}
 function showGameHistory(){
   $('game-history').replaceChildren();
-  game.history().forEach((san,i)=>{
-    const chip=document.createElement('span');chip.className='move';
+  const played=game.history();
+  const future=redoStack.slice().reverse();
+  const full=[...played,...future.map(m=>m.san||`${m.from}-${m.to}`)];
+  full.forEach((san,i)=>{
+    const chip=document.createElement('button');chip.className='move';
+    if(i===played.length-1)chip.classList.add('current');
+    if(i>=played.length)chip.classList.add('future');
     chip.textContent=(i%2===0?`${Math.floor(i/2)+1}. `:'')+san;
+    chip.title=language==='mn'?'Энэ нүүдэл рүү шилжих':'Go to this move';
+    chip.addEventListener('click',()=>jumpToGamePly(i+1));
     $('game-history').append(chip);
   });
+  const current=played.length,total=full.length;
+  $('game-start').disabled=current===0;$('game-prev').disabled=current===0;
+  $('game-next').disabled=current===total;$('game-end').disabled=current===total;
   $('fen-input').value=game.fen();
+}
+function jumpToGamePly(target){
+  let current=game.history().length;
+  const total=current+redoStack.length;
+  target=Math.max(0,Math.min(total,target));
+  while(current>target){const m=game.undo();if(m)redoStack.push(m);current--;}
+  while(current<target){const m=redoStack.pop();if(!m)break;game.move({from:m.from,to:m.to,promotion:m.promotion});current++;}
+  onPositionChanged();
 }
 function setMode(next){
   if(!styles.includes(next))return;
   mode=next;
   document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('selected',b.dataset.mode===mode));
   ['game','lesson','editor'].forEach(x=>$(`${x}-tools`).classList.toggle('hidden',x!==mode));
-  renderStatus();showGameHistory();refreshBoard();saveLocally();
+  hintSource=null;renderStatus();showGameHistory();refreshBoard();saveLocally();
 }
 function localizedOption(select, values){
   for(const option of select.options){
@@ -169,12 +300,14 @@ function setLanguage(next){
     const key=el.dataset.i18nPlaceholder;
     el.placeholder=language==='mn'?translations[key]:el.dataset.enPlaceholder;
   });
-  localizedOption($('lesson-piece'),pieceNames);localizedOption($('setup-piece'),pieceNames);
+  localizedOption($('lesson-piece'),pieceNames);localizedOption($('setup-piece'),pieceNames);localizedOption($('lesson-blocker-piece'),pieceNames);
   const colors={w:['White','Цагаан'],b:['Black','Хар']};
   localizedOption($('lesson-color'),colors);localizedOption($('setup-color'),colors);
   const editOptions={move:['Move pieces','Нүүх'],place:['Place selected piece','Дүрс байрлуулах'],erase:['Remove pieces','Дүрс арилгах']};
   localizedOption($('setup-tool'),editOptions);
-  renderStatus();saveLocally();
+  localizedOption($('lesson-tool'),{move:editOptions.move,own:['Add friendly piece','Өөрийн дүрс нэмэх'],opponent:['Add opposing piece','Эсрэг талын дүрс нэмэх'],erase:['Remove a piece','Дүрс арилгах']});
+  localizedOption($('annotation-color'),{success:['Green','Ногоон'],info:['Blue','Цэнхэр'],danger:['Red','Улаан'],warning:['Orange','Улбар шар']});
+  showHintsForSelection();renderSlides();renderStatus();saveLocally();
 }
 // Save initial English UI labels for reversible translations.
 document.querySelectorAll('[data-i18n]').forEach(el=>el.dataset.enLabel=el.textContent);
@@ -189,7 +322,7 @@ function downloadable(name,content,type){
 function lessonExport(){
   return {version:1,mode,position:positionForMode(),title:$('lesson-title').value,notes:$('notes').value,
     pgn:game.pgn(),gameFen:game.fen(),lessonFen:mapToFen(lessonMap),editorFen:mapToFen(editorMap),
-    language,annotations:board.getAnnotations?.()||{arrows:[],markers:[]}};
+    language,showMoveHints,chapters:chapterSlides,annotations:persistentAnnotations()};
 }
 function saveLocally(){try{localStorage.setItem(saveKey,JSON.stringify(lessonExport()));}catch{}}
 function loadLesson(input){
@@ -203,12 +336,60 @@ function loadLesson(input){
   timeline=[{...lessonMap}];timeIndex=0;editorTimeline=[{...editorMap}];editorIndex=0;
   $('lesson-title').value=input.title||'';$('notes').value=input.notes||'';
   redoStack=[];
+  showMoveHints=input.showMoveHints!==false;$('show-moves').checked=showMoveHints;
+  chapterSlides=Array.isArray(input.chapters)?input.chapters.slice(0,60).filter(ch=>ch&&['game','lesson','editor'].includes(ch.mode)&&typeof ch.position==='string'&&typeof ch.title==='string'):[];
+  selectedSlide=-1;renderSlides();
   setMode(input.mode);
-  board.setAnnotations?.(input.annotations||{arrows:[],markers:[]});
+  board.setAnnotations?.(hydrateAnnotations(input.annotations));
   setLanguage(input.language||'en');
   onPositionChanged();
 }
 
+function captureSlide(){
+  return {mode,position:positionForMode(),title:$('lesson-title').value.trim()||`${language==='mn'?'Слайд':'Slide'} ${chapterSlides.length+1}`,
+    notes:$('notes').value,annotations:persistentAnnotations()};
+}
+function renderSlides(){
+  const list=$('lesson-slides');list.replaceChildren();
+  chapterSlides.forEach((ch,i)=>{
+    const b=document.createElement('button');b.type='button';
+    if(i===selectedSlide)b.classList.add('selected');
+    const name=document.createElement('span');name.textContent=`${i+1}. ${ch.title}`;
+    const detail=document.createElement('small');detail.textContent=ch.mode==='game'?(language==='mn'?'Өрөг':'Game'):ch.mode==='editor'?(language==='mn'?'Засвар':'Editor'):(language==='mn'?'Хичээл':'Lesson');
+    b.append(name,detail);b.addEventListener('click',()=>openSlide(i));list.append(b);
+  });
+  $('delete-slide').disabled=selectedSlide<0;
+  $('slide-prev').disabled=selectedSlide<=0;
+  $('slide-next').disabled=selectedSlide>=chapterSlides.length-1;
+}
+function openSlide(index){
+  if(index<0||index>=chapterSlides.length)return;
+  const ch=chapterSlides[index];
+  try{
+    if(ch.mode==='game'){game=new Chess(ch.position);redoStack=[];}
+    else if(ch.mode==='lesson'){lessonMap=fenToMap(ch.position);timeline=[{...lessonMap}];timeIndex=0;}
+    else{editorMap=fenToMap(ch.position);editorTimeline=[{...editorMap}];editorIndex=0;}
+  }catch(e){status(e.message);return;}
+  selectedSlide=index;
+  $('lesson-title').value=ch.title;$('notes').value=ch.notes||'';
+  setMode(ch.mode);
+  board.setAnnotations?.(hydrateAnnotations(ch.annotations));
+  onPositionChanged();renderSlides();
+}
+$('add-slide').addEventListener('click',()=>{
+  if(chapterSlides.length>=60){alert(language==='mn'?'Дээд тал нь 60 слайд хадгална':'Maximum 60 slides');return;}
+  chapterSlides.push(captureSlide());selectedSlide=chapterSlides.length-1;renderSlides();saveLocally();
+});
+$('delete-slide').addEventListener('click',()=>{if(selectedSlide<0)return;chapterSlides.splice(selectedSlide,1);selectedSlide=-1;renderSlides();saveLocally();});
+$('slide-prev').addEventListener('click',()=>openSlide(selectedSlide-1));
+$('slide-next').addEventListener('click',()=>openSlide(selectedSlide+1));
+$('game-start').addEventListener('click',()=>jumpToGamePly(0));
+$('game-prev').addEventListener('click',()=>jumpToGamePly(game.history().length-1));
+$('game-next').addEventListener('click',()=>jumpToGamePly(game.history().length+1));
+$('game-end').addEventListener('click',()=>jumpToGamePly(game.history().length+redoStack.length));
+document.querySelectorAll('[data-annotation-tool]').forEach(b=>b.addEventListener('click',()=>changeAnnotationTool(b.dataset.annotationTool)));
+$('show-moves').addEventListener('change',e=>changeHintPreference(e.target.checked));
+$('annotation-color').addEventListener('change',saveLocally);
 $('language').addEventListener('click',()=>setLanguage(language==='en'?'mn':'en'));
 document.querySelectorAll('[data-mode]').forEach(el=>el.addEventListener('click',()=>setMode(el.dataset.mode)));
 $('undo').addEventListener('click',()=>{
@@ -228,7 +409,7 @@ $('redo').addEventListener('click',()=>{
 $('flip').addEventListener('click',()=>{
   board.setOrientation(board.getOrientation()===COLOR.white?COLOR.black:COLOR.white,true);
 });
-$('clear-arrows').addEventListener('click',()=>{board.removeArrows?.();board.removeMarkers?.();saveLocally();});
+$('clear-arrows').addEventListener('click',()=>{board.removeArrows?.();board.removeMarkers?.();showHintsForSelection();saveLocally();});
 $('new-game').addEventListener('click',()=>{if(!confirm(language==='mn'?'Шинэ өрөг эхлүүлэх үү?':'Start a new game?'))return;game=new Chess();redoStack=[];onPositionChanged();});
 $('load-fen').addEventListener('click',()=>{try{game=new Chess($('fen-input').value.trim());redoStack=[];onPositionChanged();}catch(e){alert(e.message)}});
 $('import-pgn').addEventListener('click',()=>$('pgn-file').click());
@@ -242,11 +423,23 @@ $('export-pgn').addEventListener('click',()=>downloadable('chess-classroom-game.
 function makeDemo(){
   const kind=$('lesson-piece').value;
   const piece=$('lesson-color').value==='w'?kind.toUpperCase():kind;
-  lessonMap=demoPosition(piece, kind==='p'?'d4':'d4');
+  lessonMap=lessonExample(piece,'open','d4');
   timeline=[{...lessonMap}];timeIndex=0;
   setMode('lesson');
 }
 $('start-lesson').addEventListener('click',makeDemo);
+function useLessonExample(example){
+  const kind=$('lesson-piece').value;
+  const piece=$('lesson-color').value==='w'?kind.toUpperCase():kind;
+  lessonMap=lessonExample(piece,example);
+  timeline=[{...lessonMap}];timeIndex=0;
+  setMode('lesson');
+}
+$('example-open').addEventListener('click',()=>useLessonExample('open'));
+$('example-blockers').addEventListener('click',()=>useLessonExample('blockers'));
+$('example-captures').addEventListener('click',()=>useLessonExample('captures'));
+$('lesson-tool').addEventListener('change',()=>{hintSource=null;showHintsForSelection();});
+$('setup-tool').addEventListener('change',()=>{hintSource=null;showHintsForSelection();});
 $('empty-lesson').addEventListener('click',()=>{lessonMap={};timeline=[{}];timeIndex=0;onPositionChanged();});
 $('empty-editor').addEventListener('click',()=>{editorMap={};editorTimeline=[{}];editorIndex=0;onPositionChanged();});
 $('copy-to-lesson').addEventListener('click',()=>{lessonMap={...editorMap};timeline=[{...lessonMap}];timeIndex=0;setMode('lesson')});
@@ -279,4 +472,4 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowRight'){$('redo').click();e.preventDefault();}
 });
 try{const raw=localStorage.getItem(saveKey);if(raw)loadLesson(JSON.parse(raw));}catch(e){console.warn('Saved lesson could not be restored',e)}
-setMode(mode);setLanguage(language);showGameHistory();
+setMode(mode);setLanguage(language);showGameHistory();renderSlides();
