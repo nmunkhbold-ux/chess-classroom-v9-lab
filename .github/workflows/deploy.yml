@@ -1,4 +1,4 @@
-name: Test and deploy V9 development preview
+name: Test and deploy V9 + V10 recording previews
 on:
   push:
     branches: [main]
@@ -24,6 +24,7 @@ jobs:
       - run: npm install --no-audit --no-fund
       - run: npm test
       - run: npm run browser-test
+      - run: npm run v10-browser-test
       - run: npm run build
         env:
           GITHUB_PAGES_BASE: /${{ github.event.repository.name }}/
