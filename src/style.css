@@ -26,3 +26,16 @@ html:fullscreen{background:#0b151b}html:fullscreen body{background:#0b151b;heigh
 .ink-options #brush-size{width:72px;min-width:54px;accent-color:#eac178;padding:0;cursor:pointer}
 .ink-options #undo-ink{min-width:30px;min-height:30px;height:30px;padding:2px}
 @media(max-width:740px){.ink-options{order:9;width:100%;justify-content:flex-start}}
+
+/* V8-style paired logo cards */
+.brand-logos{display:flex;align-items:center;gap:10px;flex:none}
+.brand-logo-card{display:grid;place-items:center;flex:none;background:linear-gradient(180deg,#243240,#19232d);border:1px solid #4c5d69;border-radius:14px;padding:7px;box-shadow:inset 0 1px 0 #ffffff0f,0 8px 22px #0003}
+.brand-logo-card img{display:block;object-fit:contain;width:auto;height:auto;margin:0}
+.brand-logo-card.club img{width:72px}
+.brand-logo-card.aum img{width:44px}
+.focus-brands{display:none}
+html:fullscreen .focus-brands{display:flex;position:fixed;right:20px;bottom:17px;z-index:30;align-items:center;gap:10px;padding:6px 9px;background:#101d29ed;border:1px solid #3d5364;border-radius:11px;pointer-events:none}
+.focus-brands img{width:auto;height:34px;max-width:63px;object-fit:contain}
+.focus-brands img:first-child{width:57px;height:auto;max-height:34px}
+@media(max-width:660px){.brand-logos{gap:7px}.brand-logo-card{padding:5px}.brand-logo-card.club img{width:54px}.brand-logo-card.aum img{width:34px}.brand{gap:9px}.masthead{gap:10px}.brand-copy{min-width:0}.lab-pill{display:none}}
+@media(max-width:850px){html:fullscreen .focus-brands{right:8px;bottom:8px}.focus-brands img{height:25px}.focus-brands img:first-child{max-height:25px;width:43px}}
