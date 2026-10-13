@@ -90,6 +90,7 @@ try {
     });
     console.error('BOARD DIAGNOSTICS:',JSON.stringify(d));
     console.error('CLICK EVENTS',JSON.stringify(await page.evaluate(()=>window.__clickLog||[])));
+    console.error('POINTER STATE',JSON.stringify(await page.evaluate(()=>window.__pointerSpy||null)));
   }catch(err){console.error('Diagnostics error',err.message)}
 
   await page.screenshot({path:'v9-browser-failure.png',fullPage:true}).catch(()=>{});
