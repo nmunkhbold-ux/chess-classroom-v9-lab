@@ -1,0 +1,6 @@
+node_modules/
+dist/
+public/cm-assets/
+.DS_Store
+.env*
+!.env.example

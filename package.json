@@ -1,0 +1,23 @@
+{
+  "name": "chess-classroom-v9-lab",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Separate experimental Chess Classroom using cm-chessboard + chess.js",
+  "scripts": {
+    "prepare-assets": "node scripts/prepare-assets.mjs",
+    "dev": "npm run prepare-assets && vite --host 0.0.0.0",
+    "build": "npm run prepare-assets && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "node --test test/*.test.js",
+    "check": "npm test && npm run build"
+  },
+  "dependencies": {
+    "chess.js": "^1.4.0",
+    "cm-chessboard": "8.15.3"
+  },
+  "devDependencies": {
+    "vite": "^7.1.0"
+  },
+  "engines": { "node": "^20.19.0 || >=22.12.0" }
+}

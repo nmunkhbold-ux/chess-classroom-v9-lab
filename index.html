@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#101922" />
+  <title>Chess Classroom V9 Lab — Development Preview</title>
+</head>
+<body>
+  <div id="app">
+    <header class="masthead">
+      <div class="brand">
+        <img class="crest" src="/club.png" id="club-logo" alt="Chess club logo" />
+        <div><span class="overline">DEVELOPMENT PREVIEW · V9 LAB</span><h1>Chess <em>Classroom</em></h1><p data-i18n="subtitle">Chess teaching studio</p></div>
+      </div>
+      <div class="header-actions"><span class="environment">TESTING · NOT LIVE</span><button id="language" class="outline">МН</button><button id="fullscreen" class="gold" data-i18n="fullscreen">Fullscreen · F</button><img class="crest aum" src="/aum.png" id="aum-logo" alt="AUM logo" /></div>
+    </header>
+
+    <main class="workspace">
+      <section class="board-column">
+        <div class="board-top"><span class="overline" data-i18n="interactiveBoard">INTERACTIVE CHESSBOARD</span><span id="turn-label">White to move</span></div>
+        <div class="board-frame"><div id="chessboard" role="region" aria-label="Interactive chessboard"></div></div>
+        <div class="board-footer"><span id="status" aria-live="polite">Ready</span><span data-i18n="annotateHelp">Right-click to circle · Right-drag to draw arrows</span></div>
+        <div class="controls-row"><button id="undo" class="outline" data-i18n="undo">← Undo</button><button id="redo" class="outline" data-i18n="redo">Redo →</button><button id="flip" class="outline" data-i18n="flip">Flip board</button><button id="clear-arrows" class="outline" data-i18n="clearMarks">Clear marks</button></div>
+      </section>
+
+      <aside class="panel" id="teaching-panel">
+        <section class="panel-section">
+          <span class="eyebrow" data-i18n="teachingMode">TEACHING MODE</span>
+          <div class="mode-row"><button data-mode="game" class="selected" data-i18n="fullGame">Full Game</button><button data-mode="lesson" data-i18n="pieceLesson">Piece Lesson</button><button data-mode="editor" data-i18n="boardEditor">Board Editor</button></div>
+          <p class="helper" id="mode-help"></p>
+        </section>
+        <section id="game-tools" class="panel-section">
+          <span class="eyebrow" data-i18n="gameTools">GAME CONTROLS</span>
+          <div class="tools-line"><button id="new-game" data-i18n="newGame">New game</button><button id="import-pgn" data-i18n="importPgn">Open PGN</button><input hidden type="file" id="pgn-file" accept=".pgn,.txt" /></div>
+          <div class="tools-line"><button id="export-pgn" data-i18n="savePgn">Save PGN</button><button id="load-fen" data-i18n="loadFen">Load FEN</button></div>
+          <label class="input-label" for="fen-input">FEN</label><input id="fen-input" spellcheck="false" placeholder="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" />
+          <div id="game-history" class="history"></div>
+        </section>
+        <section id="lesson-tools" class="panel-section hidden">
+          <span class="eyebrow" data-i18n="lessonSetup">PIECE DEMONSTRATION</span>
+          <div class="form-grid"><label><span data-i18n="piece">Piece</span><select id="lesson-piece"><option value="n">Knight</option><option value="p">Pawn</option><option value="b">Bishop</option><option value="r">Rook</option><option value="q">Queen</option><option value="k">King</option></select></label><label><span data-i18n="color">Color</span><select id="lesson-color"><option value="w">White</option><option value="b">Black</option></select></label></div>
+          <div class="tools-line"><button id="start-lesson" data-i18n="startLesson">Start example</button><button id="empty-lesson" data-i18n="emptyBoard">Empty board</button></div>
+        </section>
+        <section id="editor-tools" class="panel-section hidden">
+          <span class="eyebrow" data-i18n="editorSetup">BOARD SETUP</span>
+          <label class="input-label" for="setup-tool" data-i18n="editAction">Action</label><select id="setup-tool"><option value="move">Move pieces</option><option value="place">Place selected piece</option><option value="erase">Remove pieces</option></select>
+          <div class="form-grid"><label><span data-i18n="piece">Piece</span><select id="setup-piece"><option value="p">Pawn</option><option value="n">Knight</option><option value="b">Bishop</option><option value="r">Rook</option><option value="q">Queen</option><option value="k">King</option></select></label><label><span data-i18n="color">Color</span><select id="setup-color"><option value="w">White</option><option value="b">Black</option></select></label></div>
+          <div class="tools-line"><button id="empty-editor" data-i18n="clearBoard">Clear board</button><button id="copy-to-lesson" data-i18n="copyToLesson">Use in lesson</button></div>
+          <p class="helper" data-i18n="editorHint">Place or erase a piece by clicking a square. Choose Move pieces to drag freely.</p>
+        </section>
+        <section class="panel-section">
+          <span class="eyebrow" data-i18n="lessonNotes">LESSON NOTES</span>
+          <input id="lesson-title" data-i18n-placeholder="titlePlaceholder" placeholder="Lesson title" />
+          <textarea id="notes" rows="3" data-i18n-placeholder="notesPlaceholder" placeholder="Teacher notes or talking points"></textarea>
+          <div class="tools-line"><button id="save-json" data-i18n="saveLesson">Save lesson</button><button id="open-json" data-i18n="openLesson">Open lesson</button><input hidden type="file" id="lesson-file" accept=".json,application/json" /></div>
+          <p class="helper" data-i18n="autosave">Changes are saved in this browser. Download a JSON backup before class.</p>
+        </section>
+        <section class="panel-section last-section"><span class="eyebrow" data-i18n="recording">RECORDING</span><div class="tools-line"><button id="camera-left" data-camera="left" data-i18n="webcamLeft">Camera left</button><button id="camera-right" data-camera="right" data-i18n="webcamRight">Camera right</button><button id="camera-none" data-camera="none" data-i18n="boardOnly">Board only</button></div></section>
+      </aside>
+    </main>
+    <footer><span data-i18n="footer">DEVELOPMENT PREVIEW · NOT THE LIVE CLASSROOM</span><span>cm-chessboard · MIT &nbsp; | &nbsp; chess.js · BSD-2-Clause &nbsp; | &nbsp; Standard pieces · CC BY-SA 3.0</span></footer>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
