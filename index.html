@@ -41,7 +41,13 @@
             <button data-annotation-tool="move" class="icon-tool selected" type="button" title="Move pieces" aria-label="Move pieces"><span aria-hidden="true">♙</span><span class="sr-only" data-i18n="moveTool">Move</span></button>
             <button data-annotation-tool="arrow" class="icon-tool" type="button" title="Draw arrow" aria-label="Draw arrow"><span aria-hidden="true">➤</span><span class="sr-only" data-i18n="arrowTool">Arrow</span></button>
             <button data-annotation-tool="circle" class="icon-tool" type="button" title="Circle square" aria-label="Circle square"><span aria-hidden="true">◯</span><span class="sr-only" data-i18n="circleTool">Circle</span></button>
+            <button data-annotation-tool="pen" class="icon-tool" type="button" title="Freehand pencil — draw anywhere" aria-label="Freehand pencil"><span aria-hidden="true">✎</span><span class="sr-only" data-i18n="penTool">Pencil</span></button>
             <button data-annotation-tool="erase" class="icon-tool" type="button" title="Erase markings" aria-label="Erase markings"><span aria-hidden="true">⌫</span><span class="sr-only" data-i18n="eraseTool">Erase</span></button>
+          </div>
+          <div class="ink-options" id="ink-options" hidden aria-label="Drawing options">
+            <select id="quick-ink-color" aria-label="Pen color" title="Pen color"><option value="success">Green</option><option value="info">Blue</option><option value="danger">Red</option><option value="warning">Orange</option></select>
+            <input id="brush-size" type="range" min="2" max="20" value="6" aria-label="Pen or eraser size" title="Pen or eraser size" />
+            <button id="undo-ink" class="icon-tool" type="button" title="Undo last drawing or erasing" aria-label="Undo last drawing or erasing" disabled>↶</button>
           </div>
           <div class="toolbar-spacer"></div>
           <label class="hint-toggle" title="Show available moves"><input type="checkbox" id="show-moves" checked /><span data-i18n="showMoves">Moves</span></label>

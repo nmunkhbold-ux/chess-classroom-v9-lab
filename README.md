@@ -78,3 +78,12 @@ The redesigned V9 Lab is board-first: one compact toolbar, a three-mode Play / T
 **Teacher shortcuts:** F enters/leaves presentation mode, M shows/hides the inspector in presentation mode, left/right arrows undo/redo (outside text inputs). In presentation, the board and a compact teaching toolbar remain visible. The Tools button can reopen the inspector.
 
 **QA:** In addition to chess/unit tests, the Chromium smoke test verifies compact layout, click moves, arrows/circles, lesson setup behind Advanced Tools, navigation, editing, bilingual controls, and responsive stacking.
+
+## Freehand pen and smarter eraser (V9 Lab)
+
+- Select **Pencil ✎** to draw directly across the board by dragging the mouse, stylus, or finger. Choose color and brush width in the compact toolbar.
+- Select **Erase ⌫** and drag over drawings, arrows, or circles; the vector eraser removes only touched portions of pencil strokes and can erase arrows anywhere along their line. Adjust the eraser radius with the same size slider.
+- **Undo drawing ↶** (beside the brush-size slider) restores the previous pen/eraser action. The **Clear markings ✕** button clears pencil strokes, arrows and circles, and can be undone with Undo drawing. Chess move undo is separate.
+- Pencil marks are SVG vector paths and stay aligned as the board resizes or flips. They are included in automatic local saves, exported lesson JSON, and saved lesson slides.
+
+The original V8 production application is not modified.

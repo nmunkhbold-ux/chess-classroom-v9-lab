@@ -28,6 +28,12 @@ try {
   assert.ok(await page.$eval('#teaching-panel',e=>e.getBoundingClientRect().width < 355));
   assert.equal(await page.$('[data-mode="game"].selected')!==null,true);
   console.log('PASS compact classroom layout');
+  await page.evaluate(()=>{
+    window.__hintWrites=[];
+    const node=document.querySelector('#hint-info');
+    const prop=Object.getOwnPropertyDescriptor(Node.prototype,'textContent');
+    Object.defineProperty(node,'textContent',{configurable:true,get(){return prop.get.call(this);},set(value){window.__hintWrites.push({value,trace:new Error().stack?.split('\n').slice(1,7)});return prop.set.call(this,value);}});
+  });
   await clickSquare('e2');
   await page.waitForFunction(()=>document.querySelectorAll('.markers .marker').length>0,{timeout:2500});
   console.log('PASS game move highlights');
@@ -44,7 +50,39 @@ try {
   await page.click('[data-annotation-tool="circle"]');await clickSquare('d4');
   await page.waitForFunction(()=>document.querySelectorAll('.markers .marker').length>0,{timeout:2500});
   console.log('PASS circle drawing');
+  // Pen makes a continuous stroke over multiple squares; it is stored for lesson JSON.
+  await page.click('[data-annotation-tool="pen"]');
+  const penStart=await square('b5'),penEnd=await square('g5');
+  await page.mouse.move(penStart.x,penStart.y);
+  await page.mouse.down();
+  await page.mouse.move(penEnd.x,penEnd.y,{steps:32});
+  await page.mouse.up();
+  await page.waitForFunction(()=>document.querySelectorAll('.ink-layer .ink-stroke').length===1);
+  const savedInk=await page.evaluate(()=>JSON.parse(localStorage.getItem('chess-classroom-v9-lab-01')).freehand);
+  assert.ok(savedInk[0]?.points.length>5,'Freehand stroke must persist in saved lessons');
+  console.log('PASS freehand pencil and lesson autosave');
+  // Drag eraser through the middle of a stroke without removing its untouched ends.
+  await page.click('[data-annotation-tool="erase"]');
+  const erasePt=await square('d5');
+  await page.mouse.move(erasePt.x,erasePt.y);
+  await page.mouse.down();await page.mouse.move(erasePt.x+8,erasePt.y,{steps:5});await page.mouse.up();
+  await page.waitForFunction(()=>document.querySelectorAll('.ink-layer .ink-stroke').length>=2);
+  console.log('PASS partial-stroke erasing');
+  await page.click('#undo-ink');
+  await page.waitForFunction(()=>document.querySelectorAll('.ink-layer .ink-stroke').length===1);
+  console.log('PASS restore erased work');
+  // Touch an arrow along its shaft, not at its source or destination.
+  const arrowMid=await square('e3');await page.mouse.move(arrowMid.x,arrowMid.y);
+  await page.mouse.down();await page.mouse.up();
+  await page.waitForFunction(()=>document.querySelectorAll('.arrows .arrow').length===0);
+  console.log('PASS erase arrow by touching its shaft');
+  const circleMid=await square('d4');await page.mouse.move(circleMid.x,circleMid.y);
+  await page.mouse.down();await page.mouse.up();
+  await page.waitForFunction(()=>!Array.from(document.querySelectorAll('.markers .marker')).some(n=>n.classList.contains('marker-circle-success')));
+  console.log('PASS erase circle by dragging');
   await page.click('#clear-arrows');
+  assert.equal(await page.$$('.ink-layer .ink-stroke').then(a=>a.length),0);
+  console.log('PASS clear all annotations including pen');
   await page.click('[data-annotation-tool="move"]');
   await page.click('[data-mode="lesson"]');
   await page.click('#example-blockers');
@@ -80,7 +118,8 @@ try {
   console.log('PASS browser smoke suite');
 }catch(e){
   console.error('BROWSER TEST FAILURE',e.stack||e, '\nBROWSER ERRORS:',errors.join('; '));
-
+  console.error('HINT WRITES',JSON.stringify(await page.evaluate(()=>window.__hintWrites||[])));
+  try{console.error('BOARD DIAGNOSTICS',JSON.stringify(await page.evaluate(()=>{const s=document.querySelector('.cm-chessboard .board .square[data-square=\"e2\"]');const r=s?.getBoundingClientRect();return {square:r?{x:r.x,y:r.y,w:r.width,h:r.height}:null,over:r?document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)?.outerHTML?.slice(0,450):null,board:document.querySelector('#chessboard')?.getBoundingClientRect().toJSON(),hints:document.querySelector('#hint-info')?.textContent,boardInput:document.querySelector('.cm-chessboard .board')?.getAttribute('class'),markers:document.querySelectorAll('.markers .marker').length,errors:document.querySelector('#status')?.textContent}})));}catch(_){}
   await page.screenshot({path:'v9-browser-failure.png',fullPage:true}).catch(()=>{});
   process.exitCode=1;
 }finally{await browser.close();await server.close();}

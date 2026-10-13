@@ -14,3 +14,15 @@ html:fullscreen{background:#0b151b}html:fullscreen body{background:#0b151b;heigh
 /* Board frame follows the square chessboard instead of leaving unused gutters. */
 @media(min-width:781px){.board-column{width:min(100%,calc(72vh + 20px),780px)}}
 @media(min-width:781px){html:fullscreen .board-column{width:min(100%,calc(81vh + 20px),930px)}}
+
+/* Pencil and drag eraser are a separate SVG overlay; chess move input remains independent. */
+#chessboard{position:relative}
+.ink-layer{position:absolute;inset:0;width:100%;height:100%;z-index:7;pointer-events:none;touch-action:none;overflow:hidden}
+.ink-layer .ink-stroke{stroke-linecap:round;stroke-linejoin:round;fill:none;pointer-events:none}
+.ink-layer .eraser-preview{stroke:#ffffff;stroke-width:2.2;fill:rgba(255,255,255,.1);pointer-events:none;filter:drop-shadow(0 0 1px #000)}
+.ink-options[hidden]{display:none!important}
+.ink-options{display:flex;align-items:center;gap:7px;padding:3px 6px;border:1px solid #34485b;border-radius:9px;background:#111d29}
+.ink-options #quick-ink-color{width:80px;max-width:80px;min-height:30px;padding:5px 3px;font-size:11px}
+.ink-options #brush-size{width:72px;min-width:54px;accent-color:#eac178;padding:0;cursor:pointer}
+.ink-options #undo-ink{min-width:30px;min-height:30px;height:30px;padding:2px}
+@media(max-width:740px){.ink-options{order:9;width:100%;justify-content:flex-start}}
