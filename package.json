@@ -11,7 +11,9 @@
     "preview": "vite preview --host 0.0.0.0",
     "test": "node --test test/*.test.js",
     "check": "npm test && npm run build",
-    "browser-test": "npm run prepare-assets && node test/browser-smoke.mjs"
+    "browser-test": "npm run prepare-assets && node test/browser-smoke.mjs",
+    "v10-browser-test": "npm run prepare-assets && node test/v10-browser.mjs",
+    "v10-check": "npm test && npm run v10-browser-test && npm run build"
   },
   "dependencies": {
     "chess.js": "^1.4.0",
