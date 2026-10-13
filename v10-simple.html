@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="mn">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#112335"/><title>Chess Classroom — Simplified Teaching Studio</title></head>
+<body class="simple-body">
+<div id="simple-app" class="simple-app">
+  <header class="topbar">
+    <div class="brand-lockup"><img src="./club.png" alt="Гэгээн Арвай шатрын клуб" class="club-crest"/><div class="brand-title"><span class="club-line">ГЭГЭЭН АРВАЙ ШАТРЫН КЛУБ</span><strong>CHESS<span>CLASSROOM</span></strong><small id="version-label">TEACHING STUDIO · V10 EXPERIMENT</small></div></div>
+    <div class="top-actions">
+      <span id="save-badge" class="status" role="status" aria-live="polite">● Saved locally</span>
+      <button id="locale" class="top-button" title="Language / Хэл" aria-label="Switch language">EN / МН</button>
+      <button id="steps-toggle" class="top-button" data-i18n="lesson">Lesson steps</button>
+      <button id="help" class="top-button" title="Keyboard shortcuts">? <span data-i18n="help">Help</span></button>
+      <button id="fullscreen" class="top-button primary"><span aria-hidden="true">⛶</span> <span data-i18n="fullscreen">Fullscreen</span> <kbd>F</kbd></button>
+      <img src="./aum.png" alt="American University of Mongolia" class="aum-crest"/>
+    </div>
+  </header>
+  <main class="presentation" id="presentation" aria-label="Chess teaching presentation">
+    <section class="lesson-area" aria-label="Interactive chessboard">
+      <div class="lesson-topline"><div class="topic"><span class="eyebrow" id="lesson-kicker">CHESS LESSON</span><h1 id="topic-title">Чөлөөт хичээл</h1></div><div class="step-count" id="step-count">01 / 01</div></div>
+      <div class="board-holder"><div id="teaching-board" aria-label="Interactive chessboard"></div></div>
+      <div id="guidance" class="guidance" data-i18n="hint">Click a piece, then click where to move it. Use shortcuts to draw.</div>
+      <div class="record-dock" id="record-dock" role="toolbar" aria-label="Teaching tools">
+        <button class="tool active" data-tool="move" title="Move pieces (M)"><span class="glyph">♙</span><span data-i18n="move">Move</span><kbd>M</kbd></button>
+        <button class="tool" data-tool="arrow" title="Arrow (A)"><span class="glyph">➤</span><span data-i18n="arrow">Arrow</span><kbd>A</kbd></button>
+        <button class="tool" data-tool="circle" title="Circle (C)"><span class="glyph">◯</span><span data-i18n="circle">Circle</span><kbd>C</kbd></button>
+        <button class="tool" data-tool="pen" title="Draw (D)"><span class="glyph">✎</span><span data-i18n="draw">Draw</span><kbd>D</kbd></button>
+        <button class="tool" data-tool="erase" title="Erase (E)"><span class="glyph">⌫</span><span data-i18n="erase">Erase</span><kbd>E</kbd></button>
+        <span class="dock-divider"></span>
+        <button id="undo" class="icon-tool" title="Undo (U)">↶<kbd>U</kbd></button>
+        <button id="redo" class="icon-tool" title="Redo (Shift+U)">↷</button>
+        <button id="flip" class="icon-tool" title="Flip board (B)">⇅<kbd>B</kbd></button>
+        <button id="hints" class="icon-tool" title="Show possible moves (Space)">◎<kbd>␣</kbd></button>
+        <span class="dock-divider"></span>
+        <button id="prev-step" class="icon-tool" title="Previous saved step (←)">‹<kbd>←</kbd></button>
+        <button id="next-step" class="icon-tool" title="Next saved step (→)">›<kbd>→</kbd></button>
+        <button id="tools-toggle" class="icon-tool" title="Setup & lessons">⚙</button>
+        <button id="hide-ui" class="icon-tool" title="Hide controls (H)">✕<kbd>H</kbd></button>
+      </div>
+      <button id="restore-controls" class="restore-controls" title="Show controls (H)" aria-label="Show teaching controls">☷</button>
+    </section>
+    <aside class="camera-area" aria-label="Reserved for teacher camera in OBS"><span class="camera-caption" data-i18n="camera">Teacher camera area — add your camera in OBS</span></aside>
+  </main>
+  <aside id="setup-panel" class="setup-panel" aria-label="Setup and saved lesson steps" hidden>
+    <div class="panel-header"><h2 data-i18n="setup">Teaching setup</h2><button id="close-panel" aria-label="Close panel">✕</button></div>
+    <label for="lesson-name" data-i18n="lessonName">Lesson name</label><input id="lesson-name" maxlength="120" placeholder="Chess lesson"/>
+    <div class="panel-heading"><strong data-i18n="steps">Saved steps</strong><button id="new-step" class="small-gold">+ <span data-i18n="saveStep">Save new step</span></button></div>
+    <div id="saved-steps" class="saved-steps"></div>
+    <label for="step-name" data-i18n="stepName">Current step title</label><input id="step-name" maxlength="120"/>
+    <div class="panel-actions"><button id="duplicate-step" data-i18n="duplicate">Duplicate</button><button id="remove-step" data-i18n="delete">Delete step</button></div>
+    <div class="panel-heading"><strong data-i18n="position">Board setup</strong></div>
+    <div class="panel-actions"><button id="start-position" data-i18n="start">Starting position</button><button id="empty-position" data-i18n="empty">Empty board</button></div>
+    <label for="piece-selector" data-i18n="piece">Choose piece to place</label><select id="piece-selector"><option value="N">♘ White knight</option><option value="P">♙ White pawn</option><option value="B">♗ White bishop</option><option value="R">♖ White rook</option><option value="Q">♕ White queen</option><option value="K">♔ White king</option><option value="n">♞ Black knight</option><option value="p">♟ Black pawn</option><option value="b">♝ Black bishop</option><option value="r">♜ Black rook</option><option value="q">♛ Black queen</option><option value="k">♚ Black king</option><option value=".">✕ Remove piece</option></select>
+    <button id="place-mode" class="wide-button" aria-pressed="false" data-i18n="place">Piece placement: OFF</button>
+    <div class="panel-heading"><strong data-i18n="drawing">Drawing options</strong></div>
+    <div class="color-row"><label for="ink-color" data-i18n="color">Color</label><select id="ink-color"><option value="gold">Gold</option><option value="green">Green</option><option value="red">Red</option><option value="blue">Blue</option></select><label for="ink-width" data-i18n="size">Size</label><input id="ink-width" type="range" min="2" max="14" value="5"/></div>
+    <button id="clear-ink" class="wide-button" data-i18n="clearInk">Clear annotations</button>
+    <div class="panel-heading"><strong data-i18n="files">Lesson backup</strong></div>
+    <div class="panel-actions"><button id="export" data-i18n="export">Export JSON</button><button id="import" data-i18n="import">Import JSON</button><input id="file-input" type="file" accept=".json,application/json" hidden/></div>
+    <p class="panel-note" data-i18n="saveNote">Everything saves automatically in this browser. Export a JSON backup before clearing browser data.</p>
+  </aside>
+  <dialog id="shortcuts-dialog"><h2 data-i18n="shortcuts">Keyboard shortcuts</h2><div id="shortcut-list"></div><p data-i18n="recordNotice">OBS records this same window. Hide the toolbar with H for a cleaner video. The right area is reserved for your teacher camera overlay in OBS.</p><button id="close-help" class="primary" data-i18n="gotIt">Got it</button></dialog>
+</div>
+<script type="module" src="/src/v10-simple/app.js"></script>
+</body></html>

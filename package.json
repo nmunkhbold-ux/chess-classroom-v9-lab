@@ -13,7 +13,9 @@
     "check": "npm test && npm run build",
     "browser-test": "npm run prepare-assets && node test/browser-smoke.mjs",
     "v10-browser-test": "npm run prepare-assets && node test/v10-browser.mjs",
-    "v10-check": "npm test && npm run v10-browser-test && npm run build"
+    "v10-check": "npm test && npm run v10-browser-test && npm run build",
+    "simple-browser-test": "npm run prepare-assets && node test/v10-simple-browser.mjs",
+    "simple-check": "npm test && npm run simple-browser-test && npm run build"
   },
   "dependencies": {
     "chess.js": "^1.4.0",

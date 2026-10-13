@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {newTeachingLesson,validateTeachingLesson,makeStep,duplicateStep,stepAfterMove,MAX_STEPS} from '../src/v10-simple/logic.js';
+import {fenToMap} from '../src/core/position.js';
+test('default teaching lesson is single-step, bilingual and no scripts',()=>{const l=newTeachingLesson('mn');assert.equal(l.steps.length,1);assert.equal(l.language,'mn');assert.equal('notes' in l.steps[0],false);});
+test('snapshots have distinct ids',()=>{const a=makeStep('Knight'),b=duplicateStep(a);assert.notEqual(a.id,b.id);assert.equal(a.position,b.position);});
+test('piece movement changes current position',()=>{const s=stepAfterMove(makeStep(),'g1','f3');const m=fenToMap(s.position);assert.equal(m.f3,'N');assert.equal(m.g1,undefined);});
+test('free setup puts and removes pieces',()=>{let s=stepAfterMove(makeStep(),'','c5','q');assert.equal(fenToMap(s.position).c5,'q');s=stepAfterMove(s,'','c5','.');assert.equal(fenToMap(s.position).c5,undefined);});
+test('roundtrip preserves saved drawing annotations',()=>{const l=newTeachingLesson();l.steps[0].annotations.push({type:'arrow',from:'d4',to:'e6',color:'gold',width:5});const x=validateTeachingLesson(JSON.parse(JSON.stringify(l)));assert.deepEqual(x.steps[0].annotations,l.steps[0].annotations);});
+test('rejects invalid position and oversized lessons',()=>{const l=newTeachingLesson();l.steps[0].position='bad';assert.throws(()=>validateTeachingLesson(l));const m=newTeachingLesson();m.steps=Array.from({length:MAX_STEPS+1},()=>makeStep());assert.throws(()=>validateTeachingLesson(m));});
+test('migrates legacy V10 scene positions but removes instructor notes',()=>{const scene={id:'old',title:'Knight',position:makeStep().position,orientation:'w',annotations:[],notes:'PRIVATE'};const migrated=validateTeachingLesson({version:10,title:'Course',language:'mn',scenes:[scene]});assert.equal(migrated.steps[0].title,'Knight');assert.equal(JSON.stringify(migrated).includes('PRIVATE'),false);});

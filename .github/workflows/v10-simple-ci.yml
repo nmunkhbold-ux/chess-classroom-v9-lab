@@ -1,0 +1,28 @@
+name: V10 Simplified Teaching Studio (branch-only checks)
+on:
+  push:
+    branches: [v10-simplified-single-tab]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-and-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npm test
+      - run: npm run simple-browser-test
+      - run: npm run build
+        env:
+          GITHUB_PAGES_BASE: /chess-classroom-v9-lab/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v10-simplified-preview-only
+          path: dist/
+          retention-days: 21
+# No GitHub Pages deployment on this branch. V8 / V9 / earlier V10 remain as-is.
