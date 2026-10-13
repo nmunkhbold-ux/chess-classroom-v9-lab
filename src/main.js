@@ -83,6 +83,15 @@ board.context.addEventListener('pointerdown', event => {
   if(event.button !== 0) return;
   const square=event.target.closest?.('[data-square]')?.getAttribute('data-square');
   if(!square) return;
+  // Hint selection is visual-only; move validation remains in cm-chessboard.
+  if(annotationTool==='move' && !(mode==='editor' && $('setup-tool').value!=='move') && !(mode==='lesson' && $('lesson-tool').value!=='move')){
+    const piece=mode==='game'?game.get(square):(mode==='editor'?editorMap:lessonMap)[square];
+    if(piece && (mode!=='game' || piece.color===game.turn())){
+      hintSource=square;
+      showHintsForSelection();
+    }
+    return;
+  }
   if(annotationTool!=='move'){
     handleAnnotationSquare(square);
     return;
