@@ -1,16 +1,17 @@
 import assert from 'node:assert/strict';
 import puppeteer from 'puppeteer-core';
 import {createServer} from 'vite';
+const watchdog=setTimeout(()=>{console.error('V10 TEST WATCHDOG: 40 seconds elapsed');process.exit(124);},40000);
 const server=await createServer({root:process.cwd(),server:{host:'127.0.0.1',port:4194,strictPort:true}});await server.listen();
 const browser=await puppeteer.launch({headless:true,executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',args:['--no-sandbox','--disable-setuid-sandbox','--disable-dev-shm-usage']});
 const page=await browser.newPage(),output=await browser.newPage();
 const errs=[];page.on('pageerror',e=>errs.push('studio: '+e.stack));output.on('pageerror',e=>errs.push('output: '+e.stack));
 try{
  await page.setViewport({width:1536,height:1050});await output.setViewport({width:1280,height:720});
- await page.goto('http://127.0.0.1:4194/v10.html',{waitUntil:'networkidle0'});
+ console.log('V10 browser: opening studio');await page.goto('http://127.0.0.1:4194/v10.html',{waitUntil:'domcontentloaded',timeout:10000});console.log('V10 browser: studio document loaded');
  await page.waitForSelector('#scene-list .scene-card',{timeout:12000}).catch(e=>{throw Error('Studio initialization failed: '+errs.join(' | ')+'; '+e.message);});
  assert.equal(await page.$$('#scene-list .scene-card').then(x=>x.length),1);
- await output.goto('http://127.0.0.1:4194/v10-output.html',{waitUntil:'networkidle0'});
+ console.log('V10 browser: opening recording window');await output.goto('http://127.0.0.1:4194/v10-output.html',{waitUntil:'domcontentloaded',timeout:10000});
  await output.waitForFunction(()=>document.querySelector('#output-connection').hidden,{timeout:6000});
  console.log('PASS synchronized studio/output windows');
  await page.click('#add-scene');
@@ -40,4 +41,4 @@ try{
  assert.ok(await output.$eval('.presenter-area',e=>e.getBoundingClientRect().width>100));
  console.log('PASS persistent lesson and camera-safe presentation area');
  assert.deepEqual(errs,[]);console.log('PASS V10 browser workflow');
-}catch(error){console.error('V10 BROWSER FAILURE:',error.stack||error,errs);try{await page.screenshot({path:'v10-studio-failure.png'});await output.screenshot({path:'v10-output-failure.png'});}catch{}process.exitCode=1;}finally{await page.close();await output.close();await browser.close();await server.close();}
+}catch(error){console.error('V10 BROWSER FAILURE:',error.stack||error,errs);try{await page.screenshot({path:'v10-studio-failure.png'});await output.screenshot({path:'v10-output-failure.png'});}catch{}process.exitCode=1;}finally{await page.close();await output.close();await browser.close();await server.close();clearTimeout(watchdog);}
