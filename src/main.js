@@ -34,18 +34,23 @@ const translations = {
   lessonMovesHelp:'Дүрсийг сонгоод боломжтой нүүдлийг харна. Самбарт өөрийн болон эсрэг талын дүрс нэмж болно.',
   lessonChapters:'ХИЧЭЭЛИЙН СЛАЙДУУД',chapterInfo:'Байрлал, тайлбарыг хадгалж, хичээлийн явцад слайд хооронд шилжинэ.',
   addSlide:'+ Слайд хадгалах',deleteSlide:'Сонгосныг устгах',previousSlide:'◀ Өмнөх слайд',nextSlide:'Дараах слайд ▶',
-  footer:'ТУРШИЛТЫН ХУВИЛБАР · ҮНДСЭН САЙТ БИШ'
+  studioEyebrow:'ШАТРЫН СУРГАЛТЫН СТУДИ · V9 LAB',previewBadge:'Туршилтын хувилбар',
+  playLabel:'Өрөг',teachLabel:'Заах',setupLabel:'Засах',moveHistory:'Нүүдлүүд',
+  advancedLabel:'Нэмэлт хэрэгслүүд',gameFiles:'ӨРГИЙН ФАЙЛУУД',lessonFiles:'ХИЧЭЭЛИЙН ФАЙЛУУД',
+  annotationColorLabel:'ТЭМДЭГЛЭГЭЭНИЙ ӨНГӨ',recordingHelp:'F — бүтэн дэлгэц · M — хэрэгслүүдийг харуулах/нуух',
+  toolsLabel:'Хэрэгслүүд',teachHint:'Самбарын дүрсийг сонгоход боломжит нүүдлүүд харагдана.',
+  footer:'V9 LAB · ТУРШИЛТЫН ХУВИЛБАР'
 };
 const modeDescriptions = {
   en: {
-    game:'Legal chess with checkmate, castling and PGN. Drag or click pieces to play.',
-    lesson:'Move a demonstration piece freely. You can add any blockers in Board Editor.',
-    editor:'Add, remove and move pieces anywhere, even when the position is not a legal chess game.'
+    game:'Play a game or step through the moves.',
+    lesson:'Demonstrate moves, blockers and captures.',
+    editor:'Build any position for your next lesson.'
   },
   mn: {
-    game:'Шатар тоглох дүрмийг мөрдөнө. Нүүдэл, сэлгээ, мат, PGN ажиллана.',
-    lesson:'Нэг дүрсний нүүдлийг чөлөөтэй үзүүлнэ. Самбар засварлах горимд бусад дүрс нэмнэ.',
-    editor:'Дүрмээс үл хамааран хүссэн байрлалаа бүрдүүлж, дүрс чөлөөтэй нүүлгэнэ.'
+    game:'Өрөг тоглох эсвэл нүүдлүүдийг тайлбарлах.',
+    lesson:'Нүүдэл, саад, дүрс идэхийг үзүүлэх.',
+    editor:'Хичээлд ашиглах байрлалаа бэлтгэх.'
   }
 };
 const pieceNames = {p:['Pawn','Хүү'],n:['Knight','Морь'],b:['Bishop','Тэмээ'],r:['Rook','Тэрэг'],q:['Queen','Бэрс'],k:['King','Ноён']};
@@ -292,6 +297,8 @@ function setMode(next){
   mode=next;
   document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('selected',b.dataset.mode===mode));
   ['game','lesson','editor'].forEach(x=>$(`${x}-tools`).classList.toggle('hidden',x!==mode));
+  document.body.dataset.mode=mode;
+  document.querySelectorAll('[data-for-mode]').forEach(el=>{el.hidden=el.dataset.forMode!==mode;});
   hintSource=null;renderStatus();showGameHistory();refreshBoard();saveLocally();
 }
 function localizedOption(select, values){
@@ -363,6 +370,7 @@ function captureSlide(){
 }
 function renderSlides(){
   const list=$('lesson-slides');list.replaceChildren();
+  $('slide-counter').textContent=language==='mn'?`${chapterSlides.length} слайд`:`${chapterSlides.length} slide${chapterSlides.length===1?'':'s'}`;
   chapterSlides.forEach((ch,i)=>{
     const b=document.createElement('button');b.type='button';
     if(i===selectedSlide)b.classList.add('selected');
@@ -433,6 +441,7 @@ $('pgn-file').addEventListener('change',async e=>{
 });
 $('export-pgn').addEventListener('click',()=>downloadable('chess-classroom-game.pgn',game.pgn(),'text/plain'));
 function makeDemo(){
+  markExample('open');
   const kind=$('lesson-piece').value;
   const piece=$('lesson-color').value==='w'?kind.toUpperCase():kind;
   lessonMap=lessonExample(piece,'open','d4');
@@ -440,7 +449,12 @@ function makeDemo(){
   setMode('lesson');
 }
 $('start-lesson').addEventListener('click',makeDemo);
+function markExample(example){
+  const buttons={open:'example-open',blockers:'example-blockers',captures:'example-captures'};
+  for(const [id,value] of Object.entries(buttons)){$(value).classList.toggle('active',id===example);}
+}
 function useLessonExample(example){
+  markExample(example);
   const kind=$('lesson-piece').value;
   const piece=$('lesson-color').value==='w'?kind.toUpperCase():kind;
   lessonMap=lessonExample(piece,example);
@@ -464,6 +478,15 @@ $('lesson-file').addEventListener('change',async e=>{
 });
 $('lesson-title').addEventListener('input',saveLocally);$('notes').addEventListener('input',saveLocally);
 $('fullscreen').addEventListener('click',()=>document.documentElement.requestFullscreen?.());
+function togglePresentationTools(){
+  if(!document.fullscreenElement)return;
+  const open=$('teaching-panel').classList.toggle('fullscreen-open');
+  $('focus-toggle').setAttribute('aria-expanded',String(open));
+}
+$('focus-toggle').addEventListener('click',togglePresentationTools);
+document.addEventListener('fullscreenchange',()=>{
+  if(!document.fullscreenElement){$('teaching-panel').classList.remove('fullscreen-open');$('focus-toggle').setAttribute('aria-expanded','false');}
+});
 for(const el of document.querySelectorAll('[data-camera]')){
   el.addEventListener('click',()=>{
     camera=el.dataset.camera;document.body.classList.remove('camera-left','camera-right');
@@ -478,7 +501,8 @@ document.addEventListener('keydown',e=>{
     if(document.fullscreenElement)document.exitFullscreen?.();else document.documentElement.requestFullscreen?.();
   }
   if(e.key.toLowerCase()==='m'){
-    $('teaching-panel').classList.toggle('fullscreen-open');
+    togglePresentationTools();
+    e.preventDefault();
   }
   if(e.key==='ArrowLeft'){$('undo').click();e.preventDefault();}
   if(e.key==='ArrowRight'){$('redo').click();e.preventDefault();}

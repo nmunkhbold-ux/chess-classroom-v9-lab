@@ -3,89 +3,159 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#101922" />
-  <title>Chess Classroom V9 Lab — Development Preview</title>
+  <meta name="theme-color" content="#101a22" />
+  <title>Chess Classroom V9 Lab — Clean Classroom</title>
 </head>
-<body>
+<body data-mode="game">
   <div id="app">
     <header class="masthead">
       <div class="brand">
         <img class="crest" src="/club.png" id="club-logo" alt="Chess club logo" />
-        <div><span class="overline">DEVELOPMENT PREVIEW · V9 LAB</span><h1>Chess <em>Classroom</em></h1><p data-i18n="subtitle">Chess teaching studio</p></div>
+        <div class="brand-copy">
+          <div class="overline" data-i18n="studioEyebrow">CHESS TEACHING STUDIO <span class="lab-indicator">· V9 LAB</span></div>
+          <h1>Chess <em>Classroom</em></h1>
+        </div>
       </div>
-      <div class="header-actions"><span class="environment">TESTING · NOT LIVE</span><button id="language" class="outline">МН</button><button id="fullscreen" class="gold" data-i18n="fullscreen">Fullscreen · F</button><img class="crest aum" src="/aum.png" id="aum-logo" alt="AUM logo" /></div>
+      <div class="header-actions">
+        <span class="lab-pill" data-i18n="previewBadge">Development preview</span>
+        <button id="language" class="head-action" type="button" aria-label="Switch language" title="Switch language">МН</button>
+        <button id="fullscreen" class="head-action main-action" type="button" data-i18n="fullscreen">⛶ Present</button>
+        <img class="crest aum" src="/aum.png" id="aum-logo" alt="AUM logo" />
+      </div>
     </header>
 
     <main class="workspace">
-      <section class="board-column">
-        <div class="board-top"><span class="overline" data-i18n="interactiveBoard">INTERACTIVE CHESSBOARD</span><span id="turn-label">White to move</span></div>
-        <div class="board-frame"><div id="chessboard" role="region" aria-label="Interactive chessboard"></div></div>
-        <div class="board-footer"><span id="status" aria-live="polite">Ready</span><span data-i18n="annotateHelp">Right-click to circle · Right-drag to draw arrows</span></div>
-        <div class="teaching-toolbar" role="group" aria-label="Board tools">
-          <span class="tool-label" data-i18n="boardTools">BOARD TOOLS</span>
-          <button data-annotation-tool="move" class="selected" data-i18n="moveTool" title="Click or drag to move pieces">♙ Move</button>
-          <button data-annotation-tool="arrow" data-i18n="arrowTool" title="Click a starting square and then an end square">➤ Arrow</button>
-          <button data-annotation-tool="circle" data-i18n="circleTool" title="Click any square to circle it">◯ Circle</button>
-          <button data-annotation-tool="erase" data-i18n="eraseTool" title="Click a square to erase annotations">⌫ Erase</button>
-          <select id="annotation-color" aria-label="Annotation color" title="Arrow or circle color"><option value="success">Green</option><option value="info">Blue</option><option value="danger">Red</option><option value="warning">Orange</option></select>
-          <label class="hint-toggle"><input type="checkbox" id="show-moves" checked /><span data-i18n="showMoves">Show moves</span></label>
+      <section class="board-column" aria-label="Classroom board">
+        <div class="board-top">
+          <div class="board-heading"><span class="board-status-dot"></span><span id="status" aria-live="polite">Ready</span></div>
+          <span id="turn-label" class="turn-pill">White to move</span>
         </div>
-        <div class="hint-message" id="hint-info" aria-live="polite"></div>
-        <div class="controls-row"><button id="undo" class="outline" data-i18n="undo">← Undo</button><button id="redo" class="outline" data-i18n="redo">Redo →</button><button id="flip" class="outline" data-i18n="flip">Flip board</button><button id="clear-arrows" class="outline" data-i18n="clearMarks">Clear marks</button></div>
+        <div class="board-frame"><div id="chessboard" role="region" aria-label="Interactive chessboard"></div></div>
+        <div class="board-controls" role="group" aria-label="Board tools">
+          <div class="control-group nav-controls">
+            <button id="undo" class="icon-tool" type="button" aria-label="Undo" title="Undo (←)"><span aria-hidden="true">↶</span><span class="sr-only" data-i18n="undo">Undo</span></button>
+            <button id="redo" class="icon-tool" type="button" aria-label="Redo" title="Redo (→)"><span aria-hidden="true">↷</span><span class="sr-only" data-i18n="redo">Redo</span></button>
+          </div>
+          <span class="tool-divider"></span>
+          <div class="control-group drawing-controls">
+            <button data-annotation-tool="move" class="icon-tool selected" type="button" title="Move pieces" aria-label="Move pieces"><span aria-hidden="true">♙</span><span class="sr-only" data-i18n="moveTool">Move</span></button>
+            <button data-annotation-tool="arrow" class="icon-tool" type="button" title="Draw arrow" aria-label="Draw arrow"><span aria-hidden="true">➤</span><span class="sr-only" data-i18n="arrowTool">Arrow</span></button>
+            <button data-annotation-tool="circle" class="icon-tool" type="button" title="Circle square" aria-label="Circle square"><span aria-hidden="true">◯</span><span class="sr-only" data-i18n="circleTool">Circle</span></button>
+            <button data-annotation-tool="erase" class="icon-tool" type="button" title="Erase markings" aria-label="Erase markings"><span aria-hidden="true">⌫</span><span class="sr-only" data-i18n="eraseTool">Erase</span></button>
+          </div>
+          <div class="toolbar-spacer"></div>
+          <label class="hint-toggle" title="Show available moves"><input type="checkbox" id="show-moves" checked /><span data-i18n="showMoves">Moves</span></label>
+          <button id="flip" class="icon-tool" type="button" aria-label="Flip board" title="Flip board"><span aria-hidden="true">⇅</span><span class="sr-only" data-i18n="flip">Flip</span></button>
+          <button id="clear-arrows" class="icon-tool quiet-tool" type="button" aria-label="Clear arrows and circles" title="Clear arrows and circles"><span aria-hidden="true">✕</span><span class="sr-only" data-i18n="clearMarks">Clear marks</span></button>
+        </div>
+        <div class="board-below">
+          <span id="hint-info" aria-live="polite"></span>
+          <span class="board-tip" data-i18n="annotateHelp">Right-click to circle · Right-drag to draw arrows</span>
+        </div>
       </section>
 
-      <aside class="panel" id="teaching-panel">
-        <section class="panel-section">
-          <span class="eyebrow" data-i18n="teachingMode">TEACHING MODE</span>
-          <div class="mode-row"><button data-mode="game" class="selected" data-i18n="fullGame">Full Game</button><button data-mode="lesson" data-i18n="pieceLesson">Piece Lesson</button><button data-mode="editor" data-i18n="boardEditor">Board Editor</button></div>
-          <p class="helper" id="mode-help"></p>
+      <aside class="panel" id="teaching-panel" aria-label="Teaching panel">
+        <div class="panel-head">
+          <div class="mode-row" role="group" aria-label="Teaching mode">
+            <button type="button" data-mode="game" class="selected" data-i18n="playLabel">Play</button>
+            <button type="button" data-mode="lesson" data-i18n="teachLabel">Teach</button>
+            <button type="button" data-mode="editor" data-i18n="setupLabel">Setup</button>
+          </div>
+          <p class="mode-description" id="mode-help"></p>
+        </div>
+
+        <section id="game-tools" class="mode-panel">
+          <div class="section-heading"><span data-i18n="moveHistory">Moves</span><button id="new-game" class="text-action" type="button" data-i18n="newGame">New game ↻</button></div>
+          <div class="history-navigation" role="group" aria-label="Move navigation">
+            <button id="game-start" type="button" aria-label="First move" title="First move">|◀</button>
+            <button id="game-prev" type="button" aria-label="Previous move" title="Previous move">◀</button>
+            <button id="game-next" type="button" aria-label="Next move" title="Next move">▶</button>
+            <button id="game-end" type="button" aria-label="Last move" title="Last move">▶|</button>
+          </div>
+          <div id="game-history" class="history" aria-label="Move list"></div>
         </section>
-        <section id="game-tools" class="panel-section">
-          <span class="eyebrow" data-i18n="gameTools">GAME CONTROLS</span>
-          <div class="tools-line"><button id="new-game" data-i18n="newGame">New game</button><button id="import-pgn" data-i18n="importPgn">Open PGN</button><input hidden type="file" id="pgn-file" accept=".pgn,.txt" /></div>
-          <div class="history-navigation"><button id="game-start" data-i18n="firstMove" title="First move">|◀</button><button id="game-prev" data-i18n="previousMove">◀</button><button id="game-next" data-i18n="nextMove">▶</button><button id="game-end" data-i18n="lastMove" title="Last move">▶|</button></div>
-          <div class="tools-line"><button id="export-pgn" data-i18n="savePgn">Save PGN</button><button id="load-fen" data-i18n="loadFen">Load FEN</button></div>
-          <label class="input-label" for="fen-input">FEN</label><input id="fen-input" spellcheck="false" placeholder="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" />
-          <div id="game-history" class="history"></div>
+
+        <section id="lesson-tools" class="mode-panel hidden">
+          <div class="section-heading"><span data-i18n="pieceLesson">Piece demonstration</span></div>
+          <div class="form-grid compact-fields">
+            <label><span data-i18n="piece">Piece</span><select id="lesson-piece"><option value="n">Knight</option><option value="p">Pawn</option><option value="b">Bishop</option><option value="r">Rook</option><option value="q">Queen</option><option value="k">King</option></select></label>
+            <label><span data-i18n="color">Color</span><select id="lesson-color"><option value="w">White</option><option value="b">Black</option></select></label>
+          </div>
+          <button id="start-lesson" class="primary-button wide" type="button" data-i18n="startLesson">Start example</button>
+          <div class="micro-heading" data-i18n="examplePositions">EXAMPLE POSITION</div>
+          <div class="example-row" role="group" aria-label="Example position">
+            <button id="example-open" class="chip" type="button" data-i18n="openExample">Open</button>
+            <button id="example-blockers" class="chip" type="button" data-i18n="blockersExample">Blockers</button>
+            <button id="example-captures" class="chip" type="button" data-i18n="capturesExample">Captures</button>
+          </div>
+          <p class="mini-help" data-i18n="teachHint">Select the piece on the board to show its possible moves.</p>
         </section>
-        <section id="lesson-tools" class="panel-section hidden">
-          <span class="eyebrow" data-i18n="lessonSetup">PIECE DEMONSTRATION</span>
-          <div class="form-grid"><label><span data-i18n="piece">Piece</span><select id="lesson-piece"><option value="n">Knight</option><option value="p">Pawn</option><option value="b">Bishop</option><option value="r">Rook</option><option value="q">Queen</option><option value="k">King</option></select></label><label><span data-i18n="color">Color</span><select id="lesson-color"><option value="w">White</option><option value="b">Black</option></select></label></div>
-          <div class="tools-line"><button id="start-lesson" data-i18n="startLesson">Start example</button><button id="empty-lesson" data-i18n="emptyBoard">Empty board</button></div>
-          <span class="input-label" data-i18n="examplePositions">EXAMPLE POSITIONS</span>
-          <div class="tools-line"><button id="example-open" data-i18n="openExample">Open</button><button id="example-blockers" data-i18n="blockersExample">Blockers</button><button id="example-captures" data-i18n="capturesExample">Captures</button></div>
-          <span class="input-label" data-i18n="lessonPlacement">ADD PIECES TO THE LESSON</span>
-          <label class="input-label" for="lesson-tool" data-i18n="lessonAction">Lesson action</label>
-          <select id="lesson-tool"><option value="move">Move pieces</option><option value="own">Add friendly piece</option><option value="opponent">Add opposing piece</option><option value="erase">Remove a piece</option></select>
-          <label class="input-label" for="lesson-blocker-piece" data-i18n="blockerPiece">Piece to add</label>
-          <select id="lesson-blocker-piece"><option value="p">Pawn</option><option value="n">Knight</option><option value="b">Bishop</option><option value="r">Rook</option><option value="q">Queen</option></select>
-          <p class="helper" data-i18n="lessonMovesHelp">Select a piece to see legal movement geometry. Add friendly blockers or opposing targets by clicking squares.</p>
+
+        <section id="editor-tools" class="mode-panel hidden">
+          <div class="section-heading"><span data-i18n="editorSetup">Board setup</span></div>
+          <label class="field"><span data-i18n="editAction">Action</span><select id="setup-tool"><option value="move">Move pieces</option><option value="place">Place selected piece</option><option value="erase">Remove pieces</option></select></label>
+          <div class="form-grid compact-fields">
+            <label><span data-i18n="piece">Piece</span><select id="setup-piece"><option value="p">Pawn</option><option value="n">Knight</option><option value="b">Bishop</option><option value="r">Rook</option><option value="q">Queen</option><option value="k">King</option></select></label>
+            <label><span data-i18n="color">Color</span><select id="setup-color"><option value="w">White</option><option value="b">Black</option></select></label>
+          </div>
+          <button id="copy-to-lesson" class="primary-button wide" type="button" data-i18n="copyToLesson">Use in lesson →</button>
+          <p class="mini-help" data-i18n="editorHint">Place or remove pieces by clicking squares. Choose Move to drag them.</p>
         </section>
-        <section id="editor-tools" class="panel-section hidden">
-          <span class="eyebrow" data-i18n="editorSetup">BOARD SETUP</span>
-          <label class="input-label" for="setup-tool" data-i18n="editAction">Action</label><select id="setup-tool"><option value="move">Move pieces</option><option value="place">Place selected piece</option><option value="erase">Remove pieces</option></select>
-          <div class="form-grid"><label><span data-i18n="piece">Piece</span><select id="setup-piece"><option value="p">Pawn</option><option value="n">Knight</option><option value="b">Bishop</option><option value="r">Rook</option><option value="q">Queen</option><option value="k">King</option></select></label><label><span data-i18n="color">Color</span><select id="setup-color"><option value="w">White</option><option value="b">Black</option></select></label></div>
-          <div class="tools-line"><button id="empty-editor" data-i18n="clearBoard">Clear board</button><button id="copy-to-lesson" data-i18n="copyToLesson">Use in lesson</button></div>
-          <p class="helper" data-i18n="editorHint">Place or erase a piece by clicking a square. Choose Move pieces to drag freely.</p>
-        </section>
-        <section class="panel-section">
-          <span class="eyebrow" data-i18n="lessonChapters">LESSON SLIDES</span>
-          <p class="helper" data-i18n="chapterInfo">Save a board position with its notes, then jump between slides during teaching.</p>
-          <div class="tools-line"><button id="add-slide" data-i18n="addSlide">+ Save current slide</button><button id="delete-slide" data-i18n="deleteSlide">Delete selected</button></div>
-          <div class="history-navigation"><button id="slide-prev" data-i18n="previousSlide">◀ Previous</button><button id="slide-next" data-i18n="nextSlide">Next ▶</button></div>
+
+        <section class="lesson-card">
+          <div class="section-heading"><span data-i18n="lessonChapters">Lesson slides</span><span class="section-sublabel" id="slide-counter">0 slides</span></div>
+          <div class="slide-navigation">
+            <button type="button" id="slide-prev" aria-label="Previous slide" title="Previous slide">◀</button>
+            <button type="button" id="add-slide" class="primary-button" data-i18n="addSlide">+ Save slide</button>
+            <button type="button" id="slide-next" aria-label="Next slide" title="Next slide">▶</button>
+          </div>
           <div id="lesson-slides" class="slide-list" aria-label="Saved lesson slides"></div>
+          <details class="notes-details" id="lesson-notes-details">
+            <summary data-i18n="lessonNotes">Lesson notes</summary>
+            <input id="lesson-title" data-i18n-placeholder="titlePlaceholder" placeholder="Lesson title" aria-label="Lesson title" />
+            <textarea id="notes" rows="4" data-i18n-placeholder="notesPlaceholder" placeholder="Teacher notes or talking points" aria-label="Teacher notes"></textarea>
+          </details>
         </section>
-        <section class="panel-section">
-          <span class="eyebrow" data-i18n="lessonNotes">LESSON NOTES</span>
-          <input id="lesson-title" data-i18n-placeholder="titlePlaceholder" placeholder="Lesson title" />
-          <textarea id="notes" rows="3" data-i18n-placeholder="notesPlaceholder" placeholder="Teacher notes or talking points"></textarea>
-          <div class="tools-line"><button id="save-json" data-i18n="saveLesson">Save lesson</button><button id="open-json" data-i18n="openLesson">Open lesson</button><input hidden type="file" id="lesson-file" accept=".json,application/json" /></div>
-          <p class="helper" data-i18n="autosave">Changes are saved in this browser. Download a JSON backup before class.</p>
-        </section>
-        <section class="panel-section last-section"><span class="eyebrow" data-i18n="recording">RECORDING</span><div class="tools-line"><button id="camera-left" data-camera="left" data-i18n="webcamLeft">Camera left</button><button id="camera-right" data-camera="right" data-i18n="webcamRight">Camera right</button><button id="camera-none" data-camera="none" data-i18n="boardOnly">Board only</button></div></section>
+
+        <details class="advanced-panel" id="advanced-tools">
+          <summary><span class="advanced-icon" aria-hidden="true">⚙</span><span data-i18n="advancedLabel">Advanced tools</span><span class="advanced-chevron" aria-hidden="true">⌄</span></summary>
+          <div class="advanced-content">
+            <section class="advanced-group" data-for-mode="game">
+              <div class="micro-heading" data-i18n="gameFiles">GAME FILES</div>
+              <div class="tools-line"><button id="import-pgn" type="button" data-i18n="importPgn">Open PGN</button><button id="export-pgn" type="button" data-i18n="savePgn">Save PGN</button></div>
+              <input hidden type="file" id="pgn-file" accept=".pgn,.txt" />
+              <label class="field" for="fen-input"><span>FEN</span><input id="fen-input" spellcheck="false" placeholder="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" /></label>
+              <button id="load-fen" type="button" class="subtle-button" data-i18n="loadFen">Load FEN</button>
+            </section>
+            <section class="advanced-group" data-for-mode="lesson">
+              <div class="micro-heading" data-i18n="lessonPlacement">EDIT LESSON POSITION</div>
+              <label class="field" for="lesson-tool"><span data-i18n="lessonAction">Action</span><select id="lesson-tool"><option value="move">Move pieces</option><option value="own">Add friendly piece</option><option value="opponent">Add opposing piece</option><option value="erase">Remove a piece</option></select></label>
+              <label class="field" for="lesson-blocker-piece"><span data-i18n="blockerPiece">Piece to add</span><select id="lesson-blocker-piece"><option value="p">Pawn</option><option value="n">Knight</option><option value="b">Bishop</option><option value="r">Rook</option><option value="q">Queen</option></select></label>
+              <button id="empty-lesson" type="button" class="subtle-button" data-i18n="emptyBoard">Empty board</button>
+            </section>
+            <section class="advanced-group" data-for-mode="editor"><button id="empty-editor" type="button" class="subtle-button" data-i18n="clearBoard">Clear board</button></section>
+            <section class="advanced-group">
+              <div class="micro-heading" data-i18n="lessonFiles">LESSON FILES</div>
+              <div class="tools-line"><button id="save-json" type="button" data-i18n="saveLesson">Save lesson</button><button id="open-json" type="button" data-i18n="openLesson">Open lesson</button></div>
+              <input hidden type="file" id="lesson-file" accept=".json,application/json" />
+              <button id="delete-slide" type="button" class="subtle-button" data-i18n="deleteSlide">Delete selected slide</button>
+            </section>
+            <section class="advanced-group">
+              <div class="micro-heading" data-i18n="recording">RECORDING</div>
+              <div class="tools-line"><button data-camera="left" id="camera-left" type="button" data-i18n="webcamLeft">Camera left</button><button data-camera="right" id="camera-right" type="button" data-i18n="webcamRight">Camera right</button><button data-camera="none" id="camera-none" type="button" data-i18n="boardOnly">Board only</button></div>
+              <p class="mini-help" data-i18n="recordingHelp">Press F to present · M to show or hide controls.</p>
+            </section>
+            <section class="advanced-group">
+              <div class="micro-heading" data-i18n="annotationColorLabel">ANNOTATION COLOR</div>
+              <select id="annotation-color" aria-label="Annotation color" title="Arrow or circle color"><option value="success">Green</option><option value="info">Blue</option><option value="danger">Red</option><option value="warning">Orange</option></select>
+            </section>
+          </div>
+        </details>
+        <div class="panel-foot" data-i18n="autosave">Changes are saved in this browser. Export before class.</div>
       </aside>
     </main>
-    <footer><span data-i18n="footer">DEVELOPMENT PREVIEW · NOT THE LIVE CLASSROOM</span><span>cm-chessboard · MIT &nbsp; | &nbsp; chess.js · BSD-2-Clause &nbsp; | &nbsp; Standard pieces · CC BY-SA 3.0</span></footer>
+    <button type="button" id="focus-toggle" title="Show or hide lesson controls (M)" aria-label="Show or hide lesson controls">☷ <span data-i18n="toolsLabel">Tools</span></button>
+    <footer><span data-i18n="footer">V9 LAB · EXPERIMENTAL PREVIEW</span><span>cm-chessboard · MIT &nbsp; / &nbsp; chess.js · BSD-2-Clause &nbsp; / &nbsp; Pieces · CC BY-SA 3.0</span></footer>
   </div>
   <script type="module" src="/src/main.js"></script>
 </body>

@@ -70,3 +70,11 @@ CI build and browser interaction behavior must also be validated after installin
 - **Keyboard**: F for fullscreen, M for the teaching panel in fullscreen, Left/Right for undo/redo.
 
 **Current limitations:** Piece Lesson geometric hints intentionally omit chess check/pins; the regular Full Game uses `chess.js` and obeys normal rules. Board Editor deliberately allows any placement. Game slides store a FEN position (not complete previous PGN history). The optional lesson examples are teaching illustrations, not real-game puzzles. This remains the separate V9 Lab, not the live V8 app.
+
+## Clean Classroom redesign (2026-10-13)
+
+The redesigned V9 Lab is board-first: one compact toolbar, a three-mode Play / Teach / Setup switch, a small mode-specific inspector, and an intentionally collapsed **Advanced tools** drawer. No features were deleted: import/export, FEN, lesson placement tools, camera positioning, notes, annotation colors, and lesson-file tools are still available through advanced sections or their own expandable area. The previous dense V9 UI is preserved on branch `archive/v9-dense-ui-2026-10-13`.
+
+**Teacher shortcuts:** F enters/leaves presentation mode, M shows/hides the inspector in presentation mode, left/right arrows undo/redo (outside text inputs). In presentation, the board and a compact teaching toolbar remain visible. The Tools button can reopen the inspector.
+
+**QA:** In addition to chess/unit tests, the Chromium smoke test verifies compact layout, click moves, arrows/circles, lesson setup behind Advanced Tools, navigation, editing, bilingual controls, and responsive stacking.

@@ -23,6 +23,11 @@ try {
   await page.waitForSelector('.cm-chessboard .square[data-square="e2"]');
   assert.equal(await page.$eval('.cm-chessboard .pieces g[data-square="e2"]',e=>e.getAttribute('data-piece')),'wp');
   console.log('PASS board and SVG pieces');
+  // Clean Classroom is intentionally board-first and hides rarely used controls.
+  assert.ok(await page.$eval('#advanced-tools',e=>!e.open));
+  assert.ok(await page.$eval('#teaching-panel',e=>e.getBoundingClientRect().width < 355));
+  assert.equal(await page.$('[data-mode="game"].selected')!==null,true);
+  console.log('PASS compact classroom layout');
   await clickSquare('e2');
   await page.waitForFunction(()=>document.querySelectorAll('.markers .marker').length>0,{timeout:2500});
   console.log('PASS game move highlights');
@@ -45,11 +50,14 @@ try {
   await page.click('#example-blockers');
   await page.waitForSelector('.cm-chessboard .pieces g[data-square="d4"]',{timeout:2500});
   console.log('PASS lesson blockers');
+  await page.click('#advanced-tools > summary');
+  assert.ok(await page.$eval('#advanced-tools',e=>e.open));
   await page.select('#lesson-tool','opponent');
   await clickSquare('f5');
   await page.waitForSelector('.cm-chessboard .pieces g[data-square="f5"]',{timeout:2500});
   console.log('PASS add opposing piece in lesson');
   await page.select('#lesson-tool','move');
+  await page.click('#advanced-tools > summary');
   await clickSquare('d4');
   assert.ok((await page.$eval('#hint-info',e=>e.textContent)).includes('d4'));
   console.log('PASS lesson move hints');
@@ -63,6 +71,11 @@ try {
   console.log('PASS editor setup');
   await page.click('#language');assert.equal(await page.$eval('#language',e=>e.textContent.trim()),'EN');
   console.log('PASS bilingual switching');
+  // On smaller devices the teaching panel follows the board, never covers it.
+  await page.setViewport({width:700,height:920,deviceScaleFactor:1});
+  await page.waitForFunction(()=>{const x=document.querySelector('.board-frame').getBoundingClientRect(),y=document.querySelector('#teaching-panel').getBoundingClientRect();return y.top>x.bottom && x.width<=window.innerWidth;});
+  console.log('PASS responsive narrow layout');
+  await page.setViewport({width:1480,height:960,deviceScaleFactor:1});
   if(errors.length)throw Error('Browser errors: '+errors.join(' | '));
   console.log('PASS browser smoke suite');
 }catch(e){
