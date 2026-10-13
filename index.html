@@ -10,7 +10,7 @@
   <div id="app">
     <header class="masthead">
       <div class="brand">
-        <img class="crest" src="/club.png" id="club-logo" alt="Chess club logo" />
+        <div class="brand-logos" aria-label="Partner logos"><div class="brand-logo-card club"><img class="crest" src="/club.png" id="club-logo" alt="Chess club logo" /></div><div class="brand-logo-card aum"><img class="crest aum" src="/aum.png" id="aum-logo" alt="AUM logo" /></div></div>
         <div class="brand-copy">
           <div class="overline" data-i18n="studioEyebrow">CHESS TEACHING STUDIO <span class="lab-indicator">· V9 LAB</span></div>
           <h1>Chess <em>Classroom</em></h1>
@@ -20,7 +20,6 @@
         <span class="lab-pill" data-i18n="previewBadge">Development preview</span>
         <button id="language" class="head-action" type="button" aria-label="Switch language" title="Switch language">МН</button>
         <button id="fullscreen" class="head-action main-action" type="button" data-i18n="fullscreen">⛶ Present</button>
-        <img class="crest aum" src="/aum.png" id="aum-logo" alt="AUM logo" />
       </div>
     </header>
 
@@ -160,6 +159,7 @@
         <div class="panel-foot" data-i18n="autosave">Changes are saved in this browser. Export before class.</div>
       </aside>
     </main>
+    <div id="focus-brands" class="focus-brands" aria-label="Partner logos in fullscreen"><img src="/club.png" alt="Chess club logo" /><img src="/aum.png" alt="AUM logo" /></div>
     <button type="button" id="focus-toggle" title="Show or hide lesson controls (M)" aria-label="Show or hide lesson controls">☷ <span data-i18n="toolsLabel">Tools</span></button>
     <footer><span data-i18n="footer">V9 LAB · EXPERIMENTAL PREVIEW</span><span>cm-chessboard · MIT &nbsp; / &nbsp; chess.js · BSD-2-Clause &nbsp; / &nbsp; Pieces · CC BY-SA 3.0</span></footer>
   </div>
