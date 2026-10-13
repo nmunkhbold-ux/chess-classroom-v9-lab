@@ -10,14 +10,18 @@
     "build": "npm run prepare-assets && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "test": "node --test test/*.test.js",
-    "check": "npm test && npm run build"
+    "check": "npm test && npm run build",
+    "browser-test": "npm run prepare-assets && node test/browser-smoke.mjs"
   },
   "dependencies": {
     "chess.js": "^1.4.0",
     "cm-chessboard": "8.15.3"
   },
   "devDependencies": {
-    "vite": "^7.1.0"
+    "vite": "^7.1.0",
+    "puppeteer-core": "^24.19.0"
   },
-  "engines": { "node": "^20.19.0 || >=22.12.0" }
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  }
 }

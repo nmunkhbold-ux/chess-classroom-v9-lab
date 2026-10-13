@@ -71,33 +71,38 @@ const board = new Chessboard($('chessboard'), {
   style: {cssClass:'default', showCoordinates:true, pieces:{file:'pieces/standard.svg', tileSize:40}, animationDuration:180},
   extensions: [{class:Markers,props:{autoMarkers:null}}, {class:RightClickAnnotator}]
 });
-board.enableSquareSelect(POINTER_EVENTS.pointerdown, ({square,event}) => {
-  if(!square||event?.button!==0)return;
-  if(annotationTool!=='move'){handleAnnotationSquare(square);return;}
-  if(mode==='editor'&&$('setup-tool').value!=='move'){
-    applyFreeChange(putPiece(editorMap,square,$('setup-tool').value==='erase'?null:getPalettePiece()));
+// Direct pointer selection is reserved for annotations and setup modes.
+// Normal moves and their hints must be handled by cm-chessboard's own
+// move-input state machine, not a competing square-select event handler.
+board.context.addEventListener('pointerdown', event => {
+  if(event.button !== 0) return;
+  const square=event.target.closest?.('[data-square]')?.getAttribute('data-square');
+  if(!square) return;
+  if(annotationTool!=='move'){
+    handleAnnotationSquare(square);
     return;
   }
-  if(mode==='lesson'&&$('lesson-tool').value!=='move'){
+  if(mode==='editor' && $('setup-tool').value!=='move'){
+    const action=$('setup-tool').value;
+    applyFreeChange(putPiece(editorMap,square,action==='erase'?null:getPalettePiece()));
+  }else if(mode==='lesson' && $('lesson-tool').value!=='move'){
     const action=$('lesson-tool').value;
-    const color=action==='own' ? $('lesson-color').value : $('lesson-color').value==='w'?'b':'w';
+    const own=$('lesson-color').value;
+    const color=action==='own'?own:own==='w'?'b':'w';
     const kind=$('lesson-blocker-piece').value;
     applyFreeChange(putPiece(lessonMap,square,action==='erase'?null:color==='w'?kind.toUpperCase():kind));
-    return;
   }
-  selectHintSource(square);
 });
 board.enableMoveInput((event) => {
   if (event.type === INPUT_EVENT_TYPE.moveInputStarted) {
     if(annotationTool!=='move')return false;
-    if (mode === 'game') {
-      const p=game.get(event.squareFrom);
-      return Boolean(p && p.color === game.turn());
-    }
     if (mode === 'editor' && $('setup-tool').value !== 'move') return false;
     if (mode === 'lesson' && $('lesson-tool').value !== 'move') return false;
-    const map=mode === 'editor' ? editorMap : lessonMap;
-    return Boolean(map[event.squareFrom]);
+    const movable=mode==='game'
+      ? Boolean(game.get(event.squareFrom) && game.get(event.squareFrom).color===game.turn())
+      : Boolean((mode==='editor'?editorMap:lessonMap)[event.squareFrom]);
+    if(movable){hintSource=event.squareFrom;showHintsForSelection();}
+    return movable;
   }
   if (event.type === INPUT_EVENT_TYPE.validateMoveInput) {
     if(annotationTool!=='move')return false;
@@ -107,20 +112,23 @@ board.enableMoveInput((event) => {
         const move = game.move({from,to,promotion:'q'});
         if (!move) return false;
         redoStack=[];
-        onPositionChanged();
+        // Let cm-chessboard finish its move before synchronizing the board.
         return true;
       } catch { status(language === 'mn' ? 'Боломжгүй нүүдэл' : 'Illegal move'); return false; }
     }
-    if (mode === 'editor') applyFreeChange(freeMove(editorMap, from,to));
-    else {
+    if (mode === 'lesson') {
       const geometry=demonstrationMoves(lessonMap,from);
       if(![...geometry.moves,...geometry.captures].includes(to)){
         status(language==='mn'?'Энэ дүрс ингэж нүүхгүй':'This piece cannot move there');
         return false;
       }
-      applyFreeChange(freeMove(lessonMap,from,to));
     }
+    applyFreeChange(mode==='editor'?freeMove(editorMap,from,to):freeMove(lessonMap,from,to),false);
     return true;
+  }
+  if(event.type===INPUT_EVENT_TYPE.moveInputFinished){
+    // The renderer has now completed its click/drag state transition.
+    onPositionChanged();
   }
   return undefined;
 });
@@ -152,6 +160,7 @@ function selectHintSource(square){
   showHintsForSelection();
 }
 function changeAnnotationTool(tool){
+  board.cancelMoveInput();
   annotationTool=['move','arrow','circle','erase'].includes(tool)?tool:'move';
   annotationStart=null;
   document.querySelectorAll('[data-annotation-tool]').forEach(b=>b.classList.toggle('selected',b.dataset.annotationTool===annotationTool));
@@ -210,18 +219,20 @@ function getPalettePiece() {
 function positionForMode() {
   return mode === 'game' ? game.fen() : mapToFen(mode==='lesson'?lessonMap:editorMap);
 }
-function refreshBoard(animate=false) {
-  // Keep the authoritative state in Chess.js (game) or the teaching map (lesson/editor).
-  requestAnimationFrame(()=>{board.setPosition(positionForMode(), animate);showHintsForSelection();});
+function refreshBoard() {
+  // Synchronize immediately. Queuing requestAnimationFrame writes here can
+  // overwrite a newer position after a mode switch or a quick lesson edit.
+  board.setPosition(positionForMode(), false);
+  showHintsForSelection();
 }
 function onPositionChanged() {
   hintSource=null;
   renderStatus();
   showGameHistory();
-  refreshBoard(true);
+  refreshBoard();
   saveLocally();
 }
-function applyFreeChange(map) {
+function applyFreeChange(map,refresh=true) {
   if(mode==='editor'){
     editorMap=map;
     editorTimeline=editorTimeline.slice(0,editorIndex+1);
@@ -231,7 +242,7 @@ function applyFreeChange(map) {
     timeline=timeline.slice(0,timeIndex+1);
     timeline.push({...map});timeIndex++;
   }
-  onPositionChanged();
+  if(refresh)onPositionChanged();
 }
 function renderStatus() {
   if(mode==='game') {
@@ -277,6 +288,7 @@ function jumpToGamePly(target){
 }
 function setMode(next){
   if(!styles.includes(next))return;
+  board.cancelMoveInput();
   mode=next;
   document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('selected',b.dataset.mode===mode));
   ['game','lesson','editor'].forEach(x=>$(`${x}-tools`).classList.toggle('hidden',x!==mode));
@@ -438,8 +450,8 @@ function useLessonExample(example){
 $('example-open').addEventListener('click',()=>useLessonExample('open'));
 $('example-blockers').addEventListener('click',()=>useLessonExample('blockers'));
 $('example-captures').addEventListener('click',()=>useLessonExample('captures'));
-$('lesson-tool').addEventListener('change',()=>{hintSource=null;showHintsForSelection();});
-$('setup-tool').addEventListener('change',()=>{hintSource=null;showHintsForSelection();});
+$('lesson-tool').addEventListener('change',()=>{board.cancelMoveInput();hintSource=null;showHintsForSelection();});
+$('setup-tool').addEventListener('change',()=>{board.cancelMoveInput();hintSource=null;showHintsForSelection();});
 $('empty-lesson').addEventListener('click',()=>{lessonMap={};timeline=[{}];timeIndex=0;onPositionChanged();});
 $('empty-editor').addEventListener('click',()=>{editorMap={};editorTimeline=[{}];editorIndex=0;onPositionChanged();});
 $('copy-to-lesson').addEventListener('click',()=>{lessonMap={...editorMap};timeline=[{...lessonMap}];timeIndex=0;setMode('lesson')});
