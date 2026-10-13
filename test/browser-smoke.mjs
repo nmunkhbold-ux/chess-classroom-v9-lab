@@ -43,7 +43,7 @@ try {
   await page.click('[data-annotation-tool="move"]');
   await page.click('[data-mode="lesson"]');
   await page.click('#example-blockers');
-  assert.ok(await page.$('.cm-chessboard .pieces g[data-square="d4"]'));
+  await page.waitForSelector('.cm-chessboard .pieces g[data-square="d4"]',{timeout:2500});
   console.log('PASS lesson blockers');
   await page.select('#lesson-tool','opponent');
   await clickSquare('f5');
