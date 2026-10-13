@@ -16,7 +16,13 @@ document.querySelectorAll('img[alt="Chess club logo"]').forEach(img => { img.src
 document.querySelectorAll('img[alt="AUM logo"]').forEach(img => { img.src = `${base}aum.png`; });
 
 const translations = {
-  subtitle:'Шатрын сургалтын студи', fullscreen:'Бүтэн дэлгэц · F', interactiveBoard:'ШАТРЫН ИНТЕРАКТИВ САМБАР',
+  subtitle:'Шатрын сургалтын студи', fullscreen:'Бүтэн дэлгэцээр бичлэг хийх', interactiveBoard:'ШАТРЫН ИНТЕРАКТИВ САМБАР',
+  helpLabel:'Тусламж', helpTitle:'Chess Classroom — Ашиглах заавар',
+  helpIntro:'Play — өрөг тоглох, Teach — дүрсний нүүдэл заах, Setup — дурын байрлал бэлтгэх горим.',
+  helpDrawTitle:'Зурах хэрэгслүүд', helpDrawBody:'Самбарын доорх хэрэгслээр сум, дугуй, чөлөөт зураг зурах болон арилгах боломжтой. Баруун товчоор тэмдэглэгээ хийнэ.',
+  helpModesTitle:'Хичээл', helpModesBody:'Дүрсийг сонгож, боломжтой нүүдлийг харуулан, баруун талын хэсгээс хичээлийн слайд хадгална.',
+  helpKeysTitle:'Товчлуурууд', helpKeysBody:'F: бүтэн дэлгэц · M: бүтэн дэлгэцийн хэрэгслүүд · ← ба →: өмнөх/дараагийн байрлал.',
+  helpSaveTitle:'Хадгалалт',helpSaveBody:'Хичээл энэ хөтөч дээр автоматаар хадгалагдана. Хичээлийн өмнө файл болгон экспортолж нөөцлөөрэй.',helpDone:'Ойлголоо',
   annotateHelp:'Баруун товчоор дугуйлна · Баруун товчоор чирж сум зурна', undo:'← Буцаах', redo:'Сэргээх →',
   flip:'Самбар эргүүлэх', clearMarks:'Тэмдэглэгээ арилгах', teachingMode:'СУРГАЛТЫН ГОРИМ',
   fullGame:'Бүтэн тоглолт',pieceLesson:'Дүрсний хичээл',boardEditor:'Самбар засварлах',
@@ -327,7 +333,11 @@ function localizedOption(select, values){
 function setLanguage(next){
   language=next==='mn'?'mn':'en';
   document.documentElement.lang=language;
-  $('language').textContent=language==='mn'?'EN':'МН';
+  document.querySelectorAll('.language-switch [data-lang]').forEach(button=>{
+    const active=button.dataset.lang===language;
+    button.classList.toggle('active',active);
+    button.setAttribute('aria-pressed',String(active));
+  });
   document.querySelectorAll('[data-i18n]').forEach(el=>{
     const key=el.dataset.i18n;
     if(language==='mn')el.textContent=translations[key]||el.dataset.enLabel||el.textContent;
@@ -361,7 +371,20 @@ function lessonExport(){
     pgn:game.pgn(),gameFen:game.fen(),lessonFen:mapToFen(lessonMap),editorFen:mapToFen(editorMap),
     language,showMoveHints,chapters:chapterSlides,annotations:persistentAnnotations(),freehand:ink.getStrokes()};
 }
-function saveLocally(){try{localStorage.setItem(saveKey,JSON.stringify(lessonExport()));}catch{}}
+function updateSavedStatus(ok){
+  const indicator=$('save-indicator');
+  if(!indicator)return;
+  indicator.dataset.state=ok?'saved':'error';
+  $('save-status').textContent=language==='mn'?(ok?'Хадгалсан':'Хадгалах боломжгүй'):(ok?'Saved locally':'Could not save');
+}
+function saveLocally(){
+  try{
+    localStorage.setItem(saveKey,JSON.stringify(lessonExport()));
+    updateSavedStatus(true);
+  }catch{
+    updateSavedStatus(false);
+  }
+}
 function loadLesson(input){
   validateLesson(input);
   if(input.pgn){try{game.loadPgn(input.pgn);}catch{}}
@@ -432,7 +455,14 @@ $('show-moves').addEventListener('change',e=>changeHintPreference(e.target.check
 $('annotation-color').addEventListener('change',()=>{$('quick-ink-color').value=$('annotation-color').value;saveLocally();});
 $('quick-ink-color').value=$('annotation-color').value;
 $('undo-ink').addEventListener('click',()=>ink.undo());
-$('language').addEventListener('click',()=>setLanguage(language==='en'?'mn':'en'));
+document.querySelectorAll('.language-switch [data-lang]').forEach(button=>{
+  button.addEventListener('click',()=>setLanguage(button.dataset.lang));
+});
+const helpDialog=$('help-dialog');
+$('help').addEventListener('click',()=>helpDialog.showModal());
+$('help-close').addEventListener('click',()=>helpDialog.close());
+$('help-done').addEventListener('click',()=>helpDialog.close());
+helpDialog.addEventListener('click',event=>{if(event.target===helpDialog)helpDialog.close();});
 document.querySelectorAll('button[data-mode]').forEach(el=>el.addEventListener('click',()=>setMode(el.dataset.mode)));
 $('undo').addEventListener('click',()=>{
   if(mode==='game'){
