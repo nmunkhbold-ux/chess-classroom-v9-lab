@@ -305,7 +305,7 @@ function setMode(next){
   if(!styles.includes(next))return;
   board.cancelMoveInput();
   mode=next;
-  document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('selected',b.dataset.mode===mode));
+  document.querySelectorAll('button[data-mode]').forEach(b=>b.classList.toggle('selected',b.dataset.mode===mode));
   ['game','lesson','editor'].forEach(x=>$(`${x}-tools`).classList.toggle('hidden',x!==mode));
   document.body.dataset.mode=mode;
   document.querySelectorAll('[data-for-mode]').forEach(el=>{el.hidden=el.dataset.forMode!==mode;});
@@ -421,7 +421,7 @@ document.querySelectorAll('[data-annotation-tool]').forEach(b=>b.addEventListene
 $('show-moves').addEventListener('change',e=>changeHintPreference(e.target.checked));
 $('annotation-color').addEventListener('change',saveLocally);
 $('language').addEventListener('click',()=>setLanguage(language==='en'?'mn':'en'));
-document.querySelectorAll('[data-mode]').forEach(el=>el.addEventListener('click',()=>setMode(el.dataset.mode)));
+document.querySelectorAll('button[data-mode]').forEach(el=>el.addEventListener('click',()=>setMode(el.dataset.mode)));
 $('undo').addEventListener('click',()=>{
   if(mode==='game'){
     const move=game.undo();if(move)redoStack.push(move);

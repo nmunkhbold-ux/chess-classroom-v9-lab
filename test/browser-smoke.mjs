@@ -28,12 +28,6 @@ try {
   assert.ok(await page.$eval('#teaching-panel',e=>e.getBoundingClientRect().width < 355));
   assert.equal(await page.$('[data-mode="game"].selected')!==null,true);
   console.log('PASS compact classroom layout');
-  await page.evaluate(()=>{
-    window.__hintWrites=[];
-    const node=document.querySelector('#hint-info');
-    const prop=Object.getOwnPropertyDescriptor(Node.prototype,'textContent');
-    Object.defineProperty(node,'textContent',{configurable:true,get(){return prop.get.call(this)},set(value){window.__hintWrites.push({value,trace:new Error().stack?.split(String.fromCharCode(10)).slice(1,7)});return prop.set.call(this,value)}});
-  });
   await clickSquare('e2');
   await page.waitForFunction(()=>document.querySelectorAll('.markers .marker').length>0,{timeout:2500});
   console.log('PASS game move highlights');
@@ -86,7 +80,6 @@ try {
   console.log('PASS browser smoke suite');
 }catch(e){
   console.error('BROWSER TEST FAILURE',e.stack||e, '\nBROWSER ERRORS:',errors.join('; '));
-  console.error('HINT WRITES',JSON.stringify(await page.evaluate(()=>window.__hintWrites||[])));
 
   await page.screenshot({path:'v9-browser-failure.png',fullPage:true}).catch(()=>{});
   process.exitCode=1;
