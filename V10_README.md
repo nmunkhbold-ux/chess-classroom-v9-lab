@@ -14,7 +14,7 @@ V10 uses `BroadcastChannel` and browser `localStorage` to synchronize windows wi
 
 ## Main workflow
 
-- Build scenes; duplicate, delete and reorder using the scene list (drag and drop).
+- Build scenes; duplicate, delete and reorder using the scene list (drag and drop). Use **Try sample** to load an eight-scene Mongolian knight-movement lesson.
 - Edit title, chapter, subtitle, board position, pieces and scene-specific drawings.
 - Add progressive reveal steps (highlight, circle, arrow, text, move sequence, clear).
 - Navigate scenes with ←/→ and reveals using Space / Shift+Space. R restarts, P replays a move action.
@@ -26,7 +26,7 @@ V10 uses `BroadcastChannel` and browser `localStorage` to synchronize windows wi
 
 This is a **functional development prototype, not a released classroom product**. Editor/output sync supports two windows in the same browser profile. Do not mistake opening the recording output for starting OBS recording.
 
-Animations currently demonstrate ordered **piece relocation** without enforcing chess legality; custom positions without kings are supported. Some special-move visuals and transitions still need hands-on review. Freehand drawings are part of scene storage, but advanced vector editing and exact preservation of all legacy V9 arrow/freehand JSON formats are not implemented. Instructor UI translation coverage is partial (core storyboard/settings labels are bilingual); all remaining captions require bilingual pass. Recording templates require actual OBS recording tests at 1080p and 720p.
+Animations currently demonstrate ordered **piece relocation** without enforcing chess legality; custom positions without kings are supported. Some special-move visuals and transitions still need hands-on review. Freehand drawings support partial erasing and are part of scene storage, but advanced vector editing and exact preservation of all legacy V9 arrow/freehand JSON formats are not implemented. Instructor UI translation coverage is partial (core storyboard/settings labels are bilingual); all remaining captions require bilingual pass. Recording templates require actual OBS recording tests at 1080p and 720p.
 
 V9 stays available at https://nmunkhbold-ux.github.io/chess-classroom-v9-lab/ and V8 stays at https://nmunkhbold-ux.github.io/chess-classroom-studio/ .
 

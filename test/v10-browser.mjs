@@ -15,7 +15,8 @@ try{
  await output.waitForFunction(()=>document.querySelector('#output-connection').hidden,{timeout:6000});
  console.log('PASS synchronized studio/output windows');
  await page.bringToFront();console.log('V10 browser: studio brought to foreground');
- await page.evaluate(() => document.querySelector('#add-scene').click());
+ console.log('V10 browser: clicking add scene');
+ await page.evaluate(() => document.querySelector('#add-scene').click());console.log('V10 browser: add scene click finished');
  await page.waitForFunction(()=>document.querySelectorAll('#scene-list .scene-card').length===2);
  await page.$eval('#scene-title',e=>{e.value='Knight Movement';e.dispatchEvent(new Event('input',{bubbles:true}));});
  await page.select('#template','board-presenter');
@@ -41,5 +42,9 @@ try{
  assert.equal(await output.$('.studio-top'),null);
  assert.ok(await output.$eval('.presenter-area',e=>e.getBoundingClientRect().width>100));
  console.log('PASS persistent lesson and camera-safe presentation area');
+ await page.evaluate(()=>{window.confirm=()=>true;document.querySelector('#sample-lesson').click();});
+ await page.waitForFunction(()=>document.querySelectorAll('#scene-list .scene-card').length===8,{timeout:5000});
+ await output.waitForFunction(()=>document.querySelector('#video-title')?.textContent==='Морины нүүдэл',{timeout:5000});
+ console.log('PASS load eight-scene example lesson');
  assert.deepEqual(errs,[]);console.log('PASS V10 browser workflow');
 }catch(error){console.error('V10 BROWSER FAILURE:',error.stack||error,errs);try{await page.screenshot({path:'v10-studio-failure.png'});await output.screenshot({path:'v10-output-failure.png'});}catch{}process.exitCode=1;}finally{await page.close();await output.close();await browser.close();await server.close();clearTimeout(watchdog);}

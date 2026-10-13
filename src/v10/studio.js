@@ -4,6 +4,7 @@ import {fenToMap,mapToFen} from '../core/position.js';
 import {newLesson,newScene,copyScene,validateLesson,normalizePosition,frameFor,framesForMoveSequence,migrateV9} from './core.js';
 import {createBoard} from './board.js';
 import {makeSync,LESSON_KEY} from './sync.js';
+import {makeSampleLesson} from './sample.js';
 const $=id=>document.getElementById(id);
 const dictionaries={
   en:{storyboard:'Scene storyboard',sceneSettings:'Scene settings',lessonTitle:'Lesson title'},
@@ -111,6 +112,7 @@ document.querySelectorAll('[data-draw]').forEach(button=>button.addEventListener
 $('ink-color').addEventListener('change',()=>board.setPaint($('ink-color').value,$('ink-size').value));
 $('ink-size').addEventListener('input',()=>board.setPaint($('ink-color').value,$('ink-size').value));
 $('new-lesson').addEventListener('click',()=>{if(!confirm(messages[lang()].confirm))return;lesson=newLesson(lesson.language);goScene(0);});
+$('sample-lesson').addEventListener('click',()=>{if(!confirm('Load an eight-scene knight lesson? Export your current lesson first.'))return;lesson=makeSampleLesson();goScene(0);});
 $('export-lesson').addEventListener('click',()=>download('chess-classroom-v10-lesson.json',JSON.stringify(lesson,null,2)));
 $('import-lesson').addEventListener('click',()=>$('lesson-file').click());
 $('lesson-file').addEventListener('change',async event=>{const file=event.target.files?.[0];if(!file)return;

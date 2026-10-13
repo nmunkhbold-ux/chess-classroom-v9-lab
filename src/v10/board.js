@@ -1,6 +1,7 @@
 import { Chessboard, COLOR } from 'cm-chessboard/src/Chessboard.js';
 import { fenToMap, mapToFen } from '../core/position.js';
 import { normalizePosition,validateAnnotation } from './core.js';
+import { eraseAt } from './ink.js';
 const SVG_NS='http://www.w3.org/2000/svg';
 const COLORS={gold:'#ffd072',green:'#6fe0a3',red:'#f07174',blue:'#78caff'};
 const sqPoint=(sq,orientation='w')=>{
@@ -53,19 +54,13 @@ export function createBoard(host,{editable=false,onEdit=()=>{}}={}){
     if(tool==='pen'){stroke={type:'pen',color,width:size,points:[orientation==='w'?p:{x:1000-p.x,y:1000-p.y}]};annotations.push(stroke);draw();}
     else if(tool==='circle'){annotations.push({type:'circle',square,color,width:size});commit();}
     else if(tool==='arrow'){start=square;stroke=p;}
-    else if(tool==='erase'){start=p;annotations=annotations.filter(a=>{
-      if(a.type==='pen')return !a.points.some(q=>Math.hypot((orientation==='w'?q.x:1000-q.x)-p.x,(orientation==='w'?q.y:1000-q.y)-p.y)<60);
-      return !([a.square,a.from,a.to].includes(square));
-    });commit();}
+    else if(tool==='erase'){start=p;annotations=eraseAt(annotations,p,orientation,60);commit();}
   });
   overlay.addEventListener('pointermove',e=>{
     if(!editable||e.buttons!==1)return;
     const p=pointer(e);
     if(tool==='pen'&&stroke){stroke.points.push(orientation==='w'?p:{x:1000-p.x,y:1000-p.y});if(stroke.points.length>1200)stroke.points.shift();draw();}
-    if(tool==='erase'){const square=squareAt(p.x,p.y);annotations=annotations.filter(a=>{
-      if(a.type==='pen')return !a.points.some(q=>Math.hypot((orientation==='w'?q.x:1000-q.x)-p.x,(orientation==='w'?q.y:1000-q.y)-p.y)<40);
-      return !([a.square,a.from,a.to].includes(square));
-    });draw();}
+    if(tool==='erase'){annotations=eraseAt(annotations,p,orientation,40);draw();}
   });
   overlay.addEventListener('pointerup',e=>{
     if(!editable||tool==='move')return;

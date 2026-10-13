@@ -67,7 +67,28 @@ export function moveSequence(value){
   if(moves.length>24)throw Error('Maximum 24 moves per demonstration');
   return moves.map(v=>{const m=v.match(/^([a-h][1-8])[-:]?([a-h][1-8])([qrbn])?$/i);if(!m)throw Error(`Invalid move: ${v}`);return {from:m[1].toLowerCase(),to:m[2].toLowerCase(),promotion:m[3]?.toLowerCase()};});
 }
-function applyMove(map,move){const piece=map[move.from];if(!piece)throw Error(`No piece on ${move.from}`);const next={...map};delete next[move.from];next[move.to]=move.promotion?(piece===piece.toUpperCase()?move.promotion.toUpperCase():move.promotion):piece;return next;}
+function applyMove(map,move){
+  const piece=map[move.from];if(!piece)throw Error(`No piece on ${move.from}`);
+  const next={...map},side=piece===piece.toUpperCase()?'w':'b';
+  const isPawn=piece.toLowerCase()==='p',isKing=piece.toLowerCase()==='k';
+  const fromFile=move.from.charCodeAt(0),toFile=move.to.charCodeAt(0);
+  // Visual demonstrations support castling and en-passant without enforcing legality.
+  if(isKing&&Math.abs(toFile-fromFile)===2&&move.from[1]===move.to[1]){
+    const kingside=toFile>fromFile,rank=move.from[1];
+    const rookFrom=(kingside?'h':'a')+rank,rookTo=(kingside?'f':'d')+rank;
+    const rook=next[rookFrom];if(rook&&rook.toLowerCase()==='r'){
+      delete next[rookFrom];next[rookTo]=rook;
+    }
+  }
+  if(isPawn&&fromFile!==toFile&&!next[move.to]){
+    const captured=move.to[0]+move.from[1];
+    if(next[captured]?.toLowerCase()==='p'&&(next[captured]===next[captured].toUpperCase())!==(side==='w'))delete next[captured];
+  }
+  delete next[move.from];
+  const promotion=isPawn&&(move.to[1]==='8'||move.to[1]==='1')?(move.promotion||'q'):move.promotion;
+  next[move.to]=promotion?(side==='w'?promotion.toUpperCase():promotion):piece;
+  return next;
+}
 export function framesForMoveSequence(initialPosition,value){let map=fenToMap(initialPosition);return moveSequence(value).map(move=>{map=applyMove(map,move);return normalizePosition(mapToFen(map));});}
 export function frameFor(scene,step=0){
   const reveals=Array.isArray(scene.reveals)?scene.reveals:[];
