@@ -28,6 +28,7 @@ try {
   assert.ok(await page.$eval('#teaching-panel',e=>e.getBoundingClientRect().width < 355));
   assert.equal(await page.$('[data-mode="game"].selected')!==null,true);
   console.log('PASS compact classroom layout');
+  await page.evaluate(()=>{window.__clickLog=[];for(const evt of ['pointerdown','mousedown','mouseup','click'])document.addEventListener(evt,e=>{window.__clickLog.push([e.type,e.target?.getAttribute?.('data-square'),e.clientX,e.clientY]);},true);});
   await clickSquare('e2');
   await page.waitForFunction(()=>document.querySelectorAll('.markers .marker').length>0,{timeout:2500});
   console.log('PASS game move highlights');
@@ -88,6 +89,7 @@ try {
       return {square:r?.toJSON(),over:node?.outerHTML?.slice(0,300),board:document.querySelector('#chessboard')?.getBoundingClientRect().toJSON(),hint:document.querySelector('#hint-info')?.textContent,boardClass:document.querySelector('.cm-chessboard .board')?.getAttribute('class'),markers:document.querySelectorAll('.markers .marker').length,status:document.querySelector('#status')?.textContent};
     });
     console.error('BOARD DIAGNOSTICS:',JSON.stringify(d));
+    console.error('CLICK EVENTS',JSON.stringify(await page.evaluate(()=>window.__clickLog||[])));
   }catch(err){console.error('Diagnostics error',err.message)}
 
   await page.screenshot({path:'v9-browser-failure.png',fullPage:true}).catch(()=>{});
