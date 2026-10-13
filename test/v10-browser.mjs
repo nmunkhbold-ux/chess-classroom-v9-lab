@@ -14,7 +14,8 @@ try{
  console.log('V10 browser: opening recording window');await output.goto('http://127.0.0.1:4194/v10-output.html',{waitUntil:'domcontentloaded',timeout:10000});
  await output.waitForFunction(()=>document.querySelector('#output-connection').hidden,{timeout:6000});
  console.log('PASS synchronized studio/output windows');
- await page.click('#add-scene');
+ await page.bringToFront();console.log('V10 browser: studio brought to foreground');
+ await page.evaluate(() => document.querySelector('#add-scene').click());
  await page.waitForFunction(()=>document.querySelectorAll('#scene-list .scene-card').length===2);
  await page.$eval('#scene-title',e=>{e.value='Knight Movement';e.dispatchEvent(new Event('input',{bubbles:true}));});
  await page.select('#template','board-presenter');
