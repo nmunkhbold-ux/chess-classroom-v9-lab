@@ -80,6 +80,16 @@ try {
   console.log('PASS browser smoke suite');
 }catch(e){
   console.error('BROWSER TEST FAILURE',e.stack||e, '\nBROWSER ERRORS:',errors.join('; '));
+  try {
+    const d=await page.evaluate(()=>{
+      const s=document.querySelector('.cm-chessboard .board .square[data-square="e2"]');
+      const r=s?.getBoundingClientRect();
+      const node=r?document.elementFromPoint(r.x+r.width/2,r.y+r.height/2):null;
+      return {square:r?.toJSON(),over:node?.outerHTML?.slice(0,300),board:document.querySelector('#chessboard')?.getBoundingClientRect().toJSON(),hint:document.querySelector('#hint-info')?.textContent,boardClass:document.querySelector('.cm-chessboard .board')?.getAttribute('class'),markers:document.querySelectorAll('.markers .marker').length,status:document.querySelector('#status')?.textContent};
+    });
+    console.error('BOARD DIAGNOSTICS:',JSON.stringify(d));
+  }catch(err){console.error('Diagnostics error',err.message)}
+
   await page.screenshot({path:'v9-browser-failure.png',fullPage:true}).catch(()=>{});
   process.exitCode=1;
 }finally{await browser.close();await server.close();}
