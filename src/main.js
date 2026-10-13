@@ -12,8 +12,8 @@ import { demonstrationMoves, lessonExample } from './core/teaching.js';
 
 const $ = (id) => document.getElementById(id);
 const base = import.meta.env.BASE_URL;
-$('club-logo').src = `${base}club.png`;
-$('aum-logo').src = `${base}aum.png`;
+document.querySelectorAll('img[alt="Chess club logo"]').forEach(img => { img.src = `${base}club.png`; });
+document.querySelectorAll('img[alt="AUM logo"]').forEach(img => { img.src = `${base}aum.png`; });
 
 const translations = {
   subtitle:'Шатрын сургалтын студи', fullscreen:'Бүтэн дэлгэц · F', interactiveBoard:'ШАТРЫН ИНТЕРАКТИВ САМБАР',
