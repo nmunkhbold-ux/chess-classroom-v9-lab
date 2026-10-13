@@ -24,7 +24,7 @@ try {
   assert.equal(await page.$eval('.cm-chessboard .pieces g[data-square="e2"]',e=>e.getAttribute('data-piece')),'wp');
   console.log('PASS board and SVG pieces');
   const branding=await page.evaluate(()=>{
-    const header=[...document.querySelectorAll('.masthead .brand-logo-card img')];
+    const header=[document.querySelector('#club-logo'),document.querySelector('#aum-logo')];
     const presentation=[...document.querySelectorAll('.focus-brands img')];
     return {header:header.map(i=>({alt:i.alt,loaded:i.complete&&i.naturalWidth>0,src:i.currentSrc})),
       presentation:presentation.map(i=>({alt:i.alt,loaded:i.complete&&i.naturalWidth>0,src:i.currentSrc}))};
@@ -34,7 +34,13 @@ try {
   assert.ok([...branding.header,...branding.presentation].every(x=>x.loaded),'all branded assets must load');
   assert.equal(branding.header[0].src,branding.presentation[0].src);
   assert.equal(branding.header[1].src,branding.presentation[1].src);
-  console.log('PASS V8-style paired logos and fullscreen branding');
+  assert.ok(await page.$eval('.masthead .header-actions #aum-logo',e=>e.complete&&e.naturalWidth>0));
+  assert.ok(await page.$eval('.masthead .brand #club-logo',e=>e.complete&&e.naturalWidth>0));
+  assert.equal(await page.$('.masthead .brand #aum-logo').then(x=>x.length),0);
+  assert.equal(await page.$eval('#save-status',e=>e.textContent.trim()),'Saved locally');
+  assert.equal(await page.$eval('[data-lang="en"]',e=>e.getAttribute('aria-pressed')),'true');
+  assert.equal(await page.$eval('[data-lang="mn"]',e=>e.getAttribute('aria-pressed')),'false');
+  console.log('PASS V8 screenshot header: left club, right AUM, EN/MN, saved status');
   assert.equal(await page.$eval('.masthead .club-name',e=>e.textContent.trim()),'ГЭГЭЭН АРВАЙ ШАТРЫН КЛУБ');
   assert.equal(await page.$eval('.masthead .brand-copy h1',e=>e.textContent.trim()),'CHESSCLASSROOM');
   assert.equal(await page.$eval('.focus-brands .focus-club-name',e=>e.textContent.trim()),'ГЭГЭЭН АРВАЙ ШАТРЫН КЛУБ');
@@ -123,8 +129,17 @@ try {
   await clickSquare('b4');
   await page.waitForSelector('.cm-chessboard .pieces g[data-square="b4"]',{timeout:2500});
   console.log('PASS editor setup');
-  await page.click('#language');assert.equal(await page.$eval('#language',e=>e.textContent.trim()),'EN');
-  console.log('PASS bilingual switching');
+  await page.click('[data-lang="mn"]');
+  assert.equal(await page.$eval('[data-lang="mn"]',e=>e.getAttribute('aria-pressed')),'true');
+  assert.equal(await page.$eval('#save-status',e=>e.textContent.trim()),'Хадгалсан');
+  await page.click('[data-lang="en"]');
+  assert.equal(await page.$eval('[data-lang="en"]',e=>e.getAttribute('aria-pressed')),'true');
+  console.log('PASS EN / МН segmented language controls and save status');
+  await page.click('#help');
+  assert.ok(await page.$eval('#help-dialog',e=>e.open));
+  await page.click('#help-done');
+  assert.equal(await page.$eval('#help-dialog',e=>e.open),false);
+  console.log('PASS functional Help dialog');
   // On smaller devices the teaching panel follows the board, never covers it.
   await page.setViewport({width:700,height:920,deviceScaleFactor:1});
   await page.waitForFunction(()=>{const x=document.querySelector('.board-frame').getBoundingClientRect(),y=document.querySelector('#teaching-panel').getBoundingClientRect();return y.top>x.bottom && x.width<=window.innerWidth;});
