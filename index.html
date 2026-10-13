@@ -10,16 +10,26 @@
   <div id="app">
     <header class="masthead">
       <div class="brand">
-        <div class="brand-logos" aria-label="Partner logos"><div class="brand-logo-card club"><img class="crest" src="/club.png" id="club-logo" alt="Chess club logo" /></div><div class="brand-logo-card aum"><img class="crest aum" src="/aum.png" id="aum-logo" alt="AUM logo" /></div></div>
+        <div class="brand-logo-card club"><img class="crest" src="/club.png" id="club-logo" alt="Chess club logo" /></div>
         <div class="brand-copy">
-          <div class="overline club-name" lang="mn">ГЭГЭЭН АРВАЙ ШАТРЫН КЛУБ</div>
+          <div class="club-name" lang="mn">ГЭГЭЭН АРВАЙ ШАТРЫН КЛУБ</div>
           <h1>CHESS<em>CLASSROOM</em></h1>
+          <div class="save-indicator" id="save-indicator" data-state="saved" role="status" aria-live="polite">
+            <span class="save-dot" aria-hidden="true"></span><span id="save-status">Saved locally</span>
+          </div>
         </div>
       </div>
       <div class="header-actions">
-        <span class="lab-pill" data-i18n="previewBadge">Development preview</span>
-        <button id="language" class="head-action" type="button" aria-label="Switch language" title="Switch language">МН</button>
-        <button id="fullscreen" class="head-action main-action" type="button" data-i18n="fullscreen">⛶ Present</button>
+        <div class="language-switch" role="group" aria-label="Language / Хэл">
+          <button type="button" data-lang="en" class="active" aria-pressed="true">EN</button>
+          <button type="button" data-lang="mn" aria-pressed="false">МН</button>
+        </div>
+        <button type="button" id="help" class="help-action" title="How to use Chess Classroom" aria-haspopup="dialog"><span aria-hidden="true">?</span> <span data-i18n="helpLabel">Help</span></button>
+        <button type="button" id="fullscreen" class="accent-button" title="Fullscreen recording (F)">
+          <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3"/></svg>
+          <span data-i18n="fullscreen">Fullscreen recording</span>
+        </button>
+        <img class="aum-brand-logo" src="/aum.png" id="aum-logo" alt="AUM logo" />
       </div>
     </header>
 
@@ -161,6 +171,20 @@
     </main>
     <div id="focus-brands" class="focus-brands" aria-label="Partner logos in fullscreen"><img src="/club.png" alt="Chess club logo" /><img src="/aum.png" alt="AUM logo" /><span class="focus-club-name" lang="mn">ГЭГЭЭН АРВАЙ ШАТРЫН КЛУБ</span></div>
     <button type="button" id="focus-toggle" title="Show or hide lesson controls (M)" aria-label="Show or hide lesson controls">☷ <span data-i18n="toolsLabel">Tools</span></button>
+    <dialog id="help-dialog" class="help-dialog" aria-labelledby="help-title">
+      <div class="help-dialog-heading">
+        <h2 id="help-title" data-i18n="helpTitle">Chess Classroom — Quick guide</h2>
+        <button type="button" id="help-close" class="help-close" aria-label="Close help">✕</button>
+      </div>
+      <p data-i18n="helpIntro">Choose Play for a chess game, Teach to demonstrate how pieces move, or Setup to arrange any position.</p>
+      <div class="help-dialog-grid">
+        <div><strong data-i18n="helpDrawTitle">Drawing tools</strong><p data-i18n="helpDrawBody">Use the board toolbar for arrows, circles, freehand drawing and erasing. Right-click or right-drag to annotate.</p></div>
+        <div><strong data-i18n="helpModesTitle">Lessons</strong><p data-i18n="helpModesBody">Select a piece, show possible moves and save lesson slides from the right-hand panel.</p></div>
+        <div><strong data-i18n="helpKeysTitle">Keyboard shortcuts</strong><p data-i18n="helpKeysBody">F: fullscreen · M: tools in fullscreen · ← and →: previous/next position.</p></div>
+        <div><strong data-i18n="helpSaveTitle">Saving</strong><p data-i18n="helpSaveBody">Lessons are saved in this browser. Export a lesson file for a backup before teaching.</p></div>
+      </div>
+      <button type="button" id="help-done" class="help-done" data-i18n="helpDone">Got it</button>
+    </dialog>
     <footer><span data-i18n="footer">V9 LAB · EXPERIMENTAL PREVIEW</span><span>cm-chessboard · MIT &nbsp; / &nbsp; chess.js · BSD-2-Clause &nbsp; / &nbsp; Pieces · CC BY-SA 3.0</span></footer>
   </div>
   <script type="module" src="/src/main.js"></script>
