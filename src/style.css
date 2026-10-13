@@ -39,3 +39,11 @@ html:fullscreen .focus-brands{display:flex;position:fixed;right:20px;bottom:17px
 .focus-brands img:first-child{width:57px;height:auto;max-height:34px}
 @media(max-width:660px){.brand-logos{gap:7px}.brand-logo-card{padding:5px}.brand-logo-card.club img{width:54px}.brand-logo-card.aum img{width:34px}.brand{gap:9px}.masthead{gap:10px}.brand-copy{min-width:0}.lab-pill{display:none}}
 @media(max-width:850px){html:fullscreen .focus-brands{right:8px;bottom:8px}.focus-brands img{height:25px}.focus-brands img:first-child{max-height:25px;width:43px}}
+
+/* V8 identity: exact club name, CHESSCLASSROOM typography, and presentation branding. */
+.brand .club-name{font-size:12px;line-height:1.35;letter-spacing:.08em;font-weight:800;color:#eac482;margin-bottom:5px;white-space:normal;max-width:390px}
+.brand .brand-copy h1{font-size:23px;line-height:1.1;font-weight:800;letter-spacing:-.7px;text-transform:uppercase}
+.brand .brand-copy h1 em{font-weight:500}
+.focus-brands .focus-club-name{display:block;max-width:135px;font-size:10px;line-height:1.4;font-weight:800;letter-spacing:.04em;color:#f0e6d5;text-align:left}
+@media(max-width:660px){.brand .club-name{font-size:10px;letter-spacing:.035em;max-width:230px}.brand .brand-copy h1{font-size:19px}}
+@media(max-width:430px){.brand .club-name{font-size:9px;max-width:160px}.brand .brand-copy h1{font-size:17px}.brand-logo-card.club img{width:48px}.brand-logo-card.aum img{width:30px}.focus-brands .focus-club-name{font-size:8px;max-width:104px}}

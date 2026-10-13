@@ -35,6 +35,10 @@ try {
   assert.equal(branding.header[0].src,branding.presentation[0].src);
   assert.equal(branding.header[1].src,branding.presentation[1].src);
   console.log('PASS V8-style paired logos and fullscreen branding');
+  assert.equal(await page.$eval('.masthead .club-name',e=>e.textContent.trim()),'ГЭГЭЭН АРВАЙ ШАТРЫН КЛУБ');
+  assert.equal(await page.$eval('.masthead .brand-copy h1',e=>e.textContent.trim()),'CHESSCLASSROOM');
+  assert.equal(await page.$eval('.focus-brands .focus-club-name',e=>e.textContent.trim()),'ГЭГЭЭН АРВАЙ ШАТРЫН КЛУБ');
+  console.log('PASS visible club name in header and recording view');
   // Clean Classroom is intentionally board-first and hides rarely used controls.
   assert.ok(await page.$eval('#advanced-tools',e=>!e.open));
   assert.ok(await page.$eval('#teaching-panel',e=>e.getBoundingClientRect().width < 355));
