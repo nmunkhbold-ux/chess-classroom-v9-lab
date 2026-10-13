@@ -1,0 +1,32 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Chess Classroom V10 — Instructor Studio</title></head>
+<body class="studio-body">
+<header class="studio-top">
+ <div class="studio-brand"><img src="./club.png" alt="Гэгээн Арвай club logo"/><div><small>ГЭГЭЭН АРВАЙ ШАТРЫН КЛУБ · V10 LAB</small><h1>CHESS<span>CLASSROOM</span> <em>Recording Studio</em></h1></div></div>
+ <div class="studio-top-actions"><span id="sync-status">Output not open</span><button id="language-toggle" title="Switch language">EN / МН</button><button id="open-output" class="primary">◧ Open Recording Output</button></div>
+</header>
+<div class="studio-workspace">
+ <aside class="scene-sidebar">
+   <div class="panel-title"><strong data-i18n="storyboard">Scene storyboard</strong><button id="add-scene" title="Add scene">+ Scene</button></div>
+   <div id="scene-list" class="scene-list" aria-label="Scenes, drag to reorder"></div>
+   <div class="scene-actions"><button id="duplicate-scene">Duplicate</button><button id="delete-scene">Delete</button></div>
+   <div class="lesson-file"><label data-i18n="lessonTitle">Lesson title</label><input id="lesson-title" maxlength="200"/><label>Course / хөтөлбөр</label><input id="lesson-course" maxlength="180"/><div class="scene-actions"><button id="new-lesson">New lesson</button><button id="import-lesson">Import JSON</button><button id="export-lesson">Export JSON</button></div><input id="lesson-file" type="file" accept=".json,application/json" hidden/></div>
+ </aside>
+ <main class="editor-main">
+  <div class="editor-head"><div><small>PREPARE · REHEARSE · RECORD</small><h2 id="active-scene-title">Scene editor</h2></div><div class="counter"><span id="scene-counter">1 / 1</span><span id="reveal-counter">Reveal 0 / 0</span></div></div>
+  <div class="board-workspace"><div class="board-tools"><label>Drawing</label><button data-draw="move" class="active">♙ Select</button><button data-draw="pen">✎ Pen</button><button data-draw="arrow">➤ Arrow</button><button data-draw="circle">◯ Circle</button><button data-draw="erase">⌫ Erase</button><select id="ink-color"><option value="gold">Gold</option><option value="green">Green</option><option value="red">Red</option><option value="blue">Blue</option></select><input id="ink-size" type="range" min="2" max="14" value="5" title="Pen width"/><button id="clear-annotations">Clear ink</button></div>
+   <div id="studio-board" class="studio-board"></div>
+   <div class="setup-strip"><label>Piece</label><select id="piece"><option value="N">♘ White knight</option><option value="P">♙ White pawn</option><option value="B">♗ White bishop</option><option value="R">♖ White rook</option><option value="Q">♕ White queen</option><option value="K">♔ White king</option><option value="n">♞ Black knight</option><option value="p">♟ Black pawn</option><option value="b">♝ Black bishop</option><option value="r">♜ Black rook</option><option value="q">♛ Black queen</option><option value="k">♚ Black king</option><option value=".">✕ Remove</option></select><button id="place-mode">Place piece</button><button id="empty-board">Empty board</button><button id="flip-board">Flip</button></div>
+  </div>
+  <div class="stage-controls"><button id="previous-scene">← Previous scene</button><button id="previous-reveal">← Previous reveal</button><button id="next-reveal" class="primary">Next reveal →</button><button id="next-scene">Next scene →</button><button id="restart-scene">Restart</button><button id="play-animation">▶ Animate</button></div>
+  <div class="save-state" id="saved-state" role="status">● Saved in browser</div>
+ </main>
+ <aside class="editor-sidebar"><div class="panel-title"><strong data-i18n="sceneSettings">Scene settings</strong></div>
+   <label>Recording template</label><select id="template"><option value="intro">Intro slide</option><option value="board-presenter">Board + teacher</option><option value="board-only">Board only</option><option value="exercise">Exercise</option><option value="answer">Answer reveal</option><option value="summary">Summary</option></select>
+   <label>Scene heading</label><input id="scene-title" maxlength="200"/>
+   <label>Subtitle / instruction</label><input id="scene-subtitle" maxlength="300"/>
+   <label>Chapter / part</label><input id="scene-chapter" maxlength="200"/>
+   <details class="advanced-setup"><summary>Board position (FEN) ▾</summary><textarea id="fen" rows="2"></textarea><button id="load-fen">Load position</button></details>
+   <section class="reveal-panel"><div class="panel-title"><strong>Reveal steps</strong><button id="add-reveal">+ Reveal</button></div><div id="reveal-list"></div><div class="reveal-edit"><label>Action type</label><select id="reveal-type"><option value="highlight">Highlight squares</option><option value="arrow">Arrow</option><option value="circle">Circle</option><option value="text">Reveal explanation</option><option value="move">Animate moves</option><option value="clear">Clear highlights and text</option></select><label>Action details</label><input id="reveal-value" placeholder="e.g. d4 f5 / d4f5 / text"/><input id="reveal-label" placeholder="Step label (optional)"/><div class="scene-actions"><button id="update-reveal">Save step</button><button id="remove-reveal">Delete step</button></div></div></section>
+   <section class="notes-panel"><div class="panel-title"><strong>Private teacher script</strong><span>NOT RECORDED</span></div><textarea id="scene-notes" rows="7" placeholder="What to say during this scene…"></textarea><div class="script-controls"><button id="teleprompter">Teleprompter</button><label>Speed <input id="scroll-speed" type="range" min="1" max="10" value="4"/></label><button id="teleprompter-start">▶ Scroll</button><button id="teleprompter-stop">Pause</button></div><div id="teleprompter-view" hidden tabindex="0"></div></section>
+ </aside>
+</div><input hidden id="file-sink"/><script type="module" src="/src/v10/studio.js"></script></body></html>

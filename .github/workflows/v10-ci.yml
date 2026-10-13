@@ -1,0 +1,26 @@
+name: V10 Recording Studio (isolated CI preview)
+on:
+  push:
+    branches: [v10-recording-studio]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npm test
+      - run: npm run v10-browser-test
+      - run: npm run build
+        env:
+          GITHUB_PAGES_BASE: /chess-classroom-v9-lab/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chess-classroom-v10-preview
+          path: dist/
+          retention-days: 30
