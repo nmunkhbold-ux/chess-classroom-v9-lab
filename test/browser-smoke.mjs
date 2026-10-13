@@ -36,7 +36,7 @@ try {
   assert.equal(branding.header[1].src,branding.presentation[1].src);
   assert.ok(await page.$eval('.masthead .header-actions #aum-logo',e=>e.complete&&e.naturalWidth>0));
   assert.ok(await page.$eval('.masthead .brand #club-logo',e=>e.complete&&e.naturalWidth>0));
-  assert.equal(await page.$('.masthead .brand #aum-logo').then(x=>x.length),0);
+  assert.equal(await page.evaluate(() => document.querySelectorAll('.masthead .brand #aum-logo').length),0);
   assert.equal(await page.$eval('#save-status',e=>e.textContent.trim()),'Saved locally');
   assert.equal(await page.$eval('[data-lang="en"]',e=>e.getAttribute('aria-pressed')),'true');
   assert.equal(await page.$eval('[data-lang="mn"]',e=>e.getAttribute('aria-pressed')),'false');
