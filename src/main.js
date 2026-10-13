@@ -83,14 +83,12 @@ board.context.addEventListener('pointerdown', event => {
   if(event.button !== 0) return;
   const square=event.target.closest?.('[data-square]')?.getAttribute('data-square');
   if(!square) return;
-  window.__pointerSpy={square,mode,annotationTool,showMoveHints,chosen:mode==='game'?game.get(square):(mode==='editor'?editorMap:lessonMap)[square],boardPiece:board.getPiece(square),checked:$('show-moves').checked};
   // Hint selection is visual-only; move validation remains in cm-chessboard.
   if(annotationTool==='move' && !(mode==='editor' && $('setup-tool').value!=='move') && !(mode==='lesson' && $('lesson-tool').value!=='move')){
     const piece=mode==='game'?game.get(square):(mode==='editor'?editorMap:lessonMap)[square];
     if(piece && (mode!=='game' || piece.color===game.turn())){
       hintSource=square;
       showHintsForSelection();
-      window.__pointerSpy.after={hint:hintSource,markers:board.getMarkers().length,text:$('hint-info').textContent};
     }
     return;
   }
@@ -143,8 +141,9 @@ board.enableMoveInput((event) => {
     return true;
   }
   if(event.type===INPUT_EVENT_TYPE.moveInputFinished){
-    // The renderer has now completed its click/drag state transition.
-    onPositionChanged();
+    // cm-chessboard also reports unfinished selection/cancel events here.
+    // Only an actual accepted move should reset position and hints.
+    if(event.legalMove)onPositionChanged();
   }
   return undefined;
 });
