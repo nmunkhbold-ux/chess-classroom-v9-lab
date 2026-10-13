@@ -10,7 +10,7 @@ const sqPoint=(sq,orientation='w')=>{
 const svg=(name,attrs={})=>{const e=document.createElementNS(SVG_NS,name);for(const [key,val] of Object.entries(attrs))e.setAttribute(key,String(val));return e;};
 export function createBoard(host,{editable=false,onEdit=()=>{}}={}){
   host.classList.add('v10-board-host');
-  const board=new Chessboard(host,{position:'start',assetsUrl:`${import.meta.env.BASE_URL}cm-assets/`,style:{cssClass:'default',showCoordinates:true,pieces:{file:'pieces/standard.svg',tileSize:40},animationDuration:380}});
+  const board=new Chessboard(host,{position:'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1',assetsUrl:`${import.meta.env.BASE_URL}cm-assets/`,style:{cssClass:'default',showCoordinates:true,pieces:{file:'pieces/standard.svg',tileSize:40},animationDuration:380}});
   const overlay=svg('svg',{viewBox:'0 0 1000 1000','class':'v10-draw-overlay'});
   host.append(overlay);
   let orientation='w',tool='move',annotations=[],stroke=null,start=null,color='gold',size=5;

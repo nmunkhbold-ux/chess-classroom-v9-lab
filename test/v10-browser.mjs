@@ -4,11 +4,11 @@ import {createServer} from 'vite';
 const server=await createServer({root:process.cwd(),server:{host:'127.0.0.1',port:4194,strictPort:true}});await server.listen();
 const browser=await puppeteer.launch({headless:true,executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',args:['--no-sandbox','--disable-setuid-sandbox','--disable-dev-shm-usage']});
 const page=await browser.newPage(),output=await browser.newPage();
-const errs=[];page.on('pageerror',e=>errs.push('studio: '+e.message));output.on('pageerror',e=>errs.push('output: '+e.message));
+const errs=[];page.on('pageerror',e=>errs.push('studio: '+e.stack));output.on('pageerror',e=>errs.push('output: '+e.stack));
 try{
  await page.setViewport({width:1536,height:1050});await output.setViewport({width:1280,height:720});
  await page.goto('http://127.0.0.1:4194/v10.html',{waitUntil:'networkidle0'});
- await page.waitForSelector('#scene-list .scene-card');
+ await page.waitForSelector('#scene-list .scene-card',{timeout:12000}).catch(e=>{throw Error('Studio initialization failed: '+errs.join(' | ')+'; '+e.message);});
  assert.equal(await page.$$('#scene-list .scene-card').then(x=>x.length),1);
  await output.goto('http://127.0.0.1:4194/v10-output.html',{waitUntil:'networkidle0'});
  await output.waitForFunction(()=>document.querySelector('#output-connection').hidden,{timeout:6000});
